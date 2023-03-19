@@ -1,0 +1,220 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% load mystery_extras %}
+{% block breadcrumb %} 
+<h5 class="text-primary mb-0" style="font-weight: bold; white-space: nowrap;"><a class="text-primary mb-0" href="javascript:history.back()">Mystery Shopping</a> <i class="fas fa-angle-double-right"></i> {{mystery_shopping.center}} ({{mystery_shopping.month_of_audit}}) <a class="text-info" data-toggle="modal" data-target="#mystery_info_modal"><i class="fas fa-eye"></i></a>
+</h5>
+{% endblock breadcrumb %} 
+{% block content %} 
+{% for message in messages %} 
+<p class="text-danger text-center" id="messages">{{message}}</p> 
+{% endfor %} 
+<input type="hidden" name="" id="exit_check">
+<div class="modal fade" id="mystery_info_modal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Mystery Shopping Information</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Column -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card">
+                            <div class="d-flex flex-row">
+                                <div class="p-2 bg-info">
+                                    <h3 class="text-white box mb-0"><i class="ti-themify-favicon-alt"></i></h3>
+                                </div>
+                                <div class="p-2">
+                                    <h3 class="text-info mb-0">{{mystery_shopping.center}}</h3>
+                                    <span class="text-muted">{{mystery_shopping.date}},<br> {{mystery_shopping.start_time}} to {{mystery_shopping.end_time}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column -->
+                    <!-- Column -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card">
+                            <div class="d-flex flex-row">
+                                <div class="p-2 bg-success">
+                                    <h3 class="text-white box mb-0"><i class="ti-signal"></i></h3>
+                                </div>
+                                <div class="p-2">
+                                    <h3 class="text-success mb-0">{{mystery_shopping.shopper_name}} ({{mystery_shopping.gender}})</h3>
+                                    <span class="text-muted"> {{mystery_shopping.email}} <br> {{mystery_shopping.mobile}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column -->
+                    <!-- Column -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card">
+                            <div class="d-flex flex-row">
+                                <div class="p-2 bg-inverse">
+                                    <h3 class="text-white box mb-0"><i class="ti-timer"></i></h3>
+                                </div>
+                                <div class="p-2">
+                                    <h3 class="mb-0">{{mystery_shopping.invoice_number}}</h3>
+                                    <span class="text-muted">Cost: {{mystery_shopping.cost_of_service}} | Mode: {{mystery_shopping.payment_mode}}</span> <br>
+                                    <span>Cash: {{mystery_shopping.paid_in_cash}} | Redeemed {{mystery_shopping.amount_redeemed}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column -->
+                    <!-- Column -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card">
+                            <div class="d-flex flex-row">
+                                <div class="p-2 bg-cyan">
+                                    <h3 class="text-white box mb-0"><i class="ti-server"></i></h3>
+                                </div>
+                                <div class="p-2">
+                                    <span class="text-muted">Added By: {{mystery_shopping.added_by}}</span>
+                                    <br><br>
+                                    <span class="text-muted">Added On: {{mystery_shopping.added_on}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column -->
+                </div>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="tag-mysteryprofile_tab" data-toggle="tab" href="#mysteryprofile_tab" role="tab" aria-controls="home" aria-selected="true" onclick="return saveTabSelect(this)">Details</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-serviceagent_tab" data-toggle="tab" href="#serviceagent_tab" role="tab" aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">
+                {{mystery_shopping.service_availed_1}}</a>
+        </li>
+        {% if mystery_shopping.service_availed_2 %}
+        <li class="nav-item">
+            <a class="nav-link" id="tag-serviceagent_tab_2" data-toggle="tab" href="#serviceagent_tab_2" role="tab" aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">
+                {{mystery_shopping.service_availed_2}}</a>
+        </li>
+        {% endif %}
+        {% if mystery_shopping.service_availed_3 %}
+        <li class="nav-item">
+            <a class="nav-link" id="tag-serviceagent_tab_3" data-toggle="tab" href="#serviceagent_tab_3" role="tab" aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">
+                {{mystery_shopping.service_availed_3}}</a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+            <a class="nav-link" id="tag-mysteryimage_tab" data-toggle="tab" href="#mysteryimage_tab" role="tab" aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">Files</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="mysteryprofile_tab" role="tabpanel" aria-labelledby="home-tab"> 
+            {% include 'mystery_shopping/mystery_shopping_profile_tabs/profile_tab.html' %} </div>
+        <div class="tab-pane fade" id="serviceagent_tab" role="tabpanel" aria-labelledby="agent-tab"> 
+            {% include 'mystery_shopping/mystery_shopping_profile_tabs/service_agent_tab_1.html' %} </div>
+        <div class="tab-pane fade" id="serviceagent_tab_2" role="tabpanel" aria-labelledby="agent-tab-2"> 
+            {% include 'mystery_shopping/mystery_shopping_profile_tabs/service_agent_tab_2.html' %} </div>
+        <div class="tab-pane fade" id="serviceagent_tab_3" role="tabpanel" aria-labelledby="agent-tab-3"> 
+            {% include 'mystery_shopping/mystery_shopping_profile_tabs/service_agent_tab_3.html' %} </div>
+        <div class="tab-pane fade" id="mysteryimage_tab" role="tabpanel" aria-labelledby="profile-tab"> 
+            {% include 'mystery_shopping/mystery_shopping_profile_tabs/images_list_tab.html' %} </div>
+    </div>
+</div>
+
+
+<script>
+    // const client_id = "{{client.id}}";
+
+    // function redirectToDataUploader() {
+    //     $('cover-spin').show();
+    //     window.location.href = `/data-uploader/?client=${client_id}`
+    // }
+
+
+    // TODO add to session
+    function saveTabSelect(item) {
+        // var selectedTag = JSON.parse(sessionStorage.getItem('client_tag')) || null;
+        // sessionStorage.setItem('client_tag', JSON.stringify(storedProductList));
+        // var selectedTag = sessionStorage.getItem('client_tag') || null;
+        // sessionStorage.setItem('client_tag', storedProductList);
+        var prevSelectedTag = localStorage.getItem("curr_mysteryprofile_tag");
+        // console.log(`prevSelectedTag: `, prevSelectedTag);
+        if (item.id == prevSelectedTag) {
+            return;
+        }
+        if (prevSelectedTag) {
+            var element = document.getElementById(prevSelectedTag);
+            element.classList.remove("active");
+
+            var tabPaneId = `${prevSelectedTag.split("-")[1]}`;
+            // console.log(`tabPanId: `, tabPanId);
+            var tabePaneElement = document.getElementById(tabPaneId);
+            tabePaneElement.classList.remove('active');
+        }
+        localStorage.setItem("curr_mysteryprofile_tag", item.id);
+        // console.log(`cur tag id: `, item.id)
+        return true;
+    }
+
+    function retrieveSelected() {
+        var curTag = localStorage.getItem("curr_mysteryprofile_tag");
+        // console.log(`curTag: `, curTag);
+        if (curTag) {
+            var curElement = document.getElementById(`${curTag}`);
+            if (curElement) {
+                // revome active from first pill and tab in case there's any prev tag in local storage
+                var dataTag = document.getElementById('tag-mysteryprofile_tab');
+                dataTag.classList.remove("active");
+                var dataTabPaneElement = document.getElementById('mysteryprofile_tab');
+                dataTabPaneElement.classList.remove('active');
+
+                // Add active to tab
+                curElement.classList.add("active");
+                var curPaneId = `${curTag.split('-')[1]}`;
+                var curPaneElement = document.getElementById(curPaneId);
+                curPaneElement.classList.add('show');
+                curPaneElement.classList.add('active');
+
+                // const tab = $(curElement).data('tab_selected');
+                // window.location.href = `/clients/${client_id}/?tab=${tab}`;
+            } else {
+                // Else set in local storage the current active tab
+                localStorage.setItem("curr_mysteryprofile_tag", 'tag-mysteryprofile_tab');
+            }
+
+        } else {
+            // Else set in local storage the current active tab
+            localStorage.setItem("curr_mysteryprofile_tag", 'tag-mysteryprofile_tab');
+        }
+    }
+    retrieveSelected();
+
+    window.onbeforeunload = function () {
+            var value = document.getElementById('exit_check').value;
+            if (value == 'wait') {
+                return 'Some data is not saved. Are you sure, you want to exit ?';
+            }
+    };
+
+    function update_exit_check(){
+        var exit_check = document.getElementById('exit_check');
+        exit_check.value = "wait";
+        var mytab = document.getElementById('myTab');
+        mytab.classList.add('d-none');
+        var side_navbar = document.getElementById('side_bar_id');
+        side_navbar.classList.add('d-none');
+    }
+
+</script>
+
+{% endblock %}

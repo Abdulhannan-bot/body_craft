@@ -1,0 +1,588 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for checklist in all_hygiene_check_checklist %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{checklist.checklist|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{checklist.responsible_kra|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="user_{{checklist.id}}" id="responsible_hc_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if checklist.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{checklist.relative_gap_found|default_if_none:'' }}" id="relativegap_hc_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" name="" id="compliance_hc_{{forloop.counter}}" value="{{checklist.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{checklist.id}}" id="checklist_hc_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br><br>
+        <h3>Hygiene Check</h3>
+        <div class="m-2">
+            <div class="btn-group">
+                <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Action </button>
+                <div class="dropdown-menu">
+                    <form action="" method="post"> 
+                        {% csrf_token %} 
+                        <Button class="dropdown-item" type="submit" name="create_one_hygiene_annexure_row"> Add single row </Button>
+                    </form>
+                    <Button class="dropdown-item" data-toggle="modal" data-target="#add_clinic_hygiene_annexure_row_modal"> Add Multiple row</Button>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table user-table mb-0" id="hygiene_annexure_table">
+                <thead class="text-white" style="background-color: rgb(151 112 112);">
+                    <tr>
+                        <th scope="col" class="border-0 text-bold" style="width: 200px;"> Sample Dates </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> Total Guests </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Sample size for Audit </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> Invoice Date </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Invoice Number </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Client Name </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Category of Sample </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; ">Quantity of injectable as per the bills </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Quantity of injectable as per consent form </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Quantity of injectable as per treatment record </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; ">Difference</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px; "> Consumables bill quantity matching as per treatment record & consent form (TR, Stickers v/s bill) </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;"> Reception copy </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;"> Security copy </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;"> security sheet </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;"> Feedback updated </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;"> Job card attached </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;"> Job card matches with invoice </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">360 degree/Client Profile Form </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Disclaimer Form </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Consent Form</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Client signature matching with all other documents</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Treatment Record entry</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Customer signature in treatment record</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Doctors signature in treatment record</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Redemption of all service under right package</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Consultant signature</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 200px;">Evidences</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 400px;"> Remark </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 30px;"> Action </th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    {% for annexure in all_hygiene_annexure %} 
+                    <tr {% if annexure.sample_dates and annexure.total_guest and annexure.sample_size_for_audit and annexure.invoice_number and annexure.reception_copy and annexure.security_copy and annexure.security_sheet and annexure.feedback_updated and annexure.was_the_rating_above_4 and annexure.if_no_was_the_im_created and annexure.job_card_attached and annexure.job_card_matches_invoice and annexure.sa_signature %} style="background-color: rgb(231 231 244);" {% endif %}>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="date" value="{{annexure.sample_dates}}" id="sample_date_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="text" value="{{annexure.total_guest|default_if_none:'' }}" id="total_guest_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="text" value="{{annexure.sample_size_for_audit|default_if_none:''}}" id="sample_size_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="date" value="{{annexure.invoice_date}}" id="invoice_date_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="text" value="{{annexure.invoice_number|default_if_none:''}}" id="invoice_number_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="text" value="{{annexure.client_name|default_if_none:''}}" id="client_name_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="text" value="{{annexure.category_of_sample|default_if_none:''}}" id="category_sample_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="text" value="{{annexure.quantity_of_injectable_as_per_bill|default_if_none:''}}" id="injectable_as_bill_{{forloop.counter}}" onchange="hygiene_check_not_difference()">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="text" value="{{annexure.quantity_of_injectable_as_per_consent_form|default_if_none:''}}" id="injectable_as_consent_{{forloop.counter}}" onchange="hygiene_check_not_difference()">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" type="text" value="{{annexure.quantity_of_injectable_as_per_treatment_record|default_if_none:''}}" id="injectable_as_treatment_{{forloop.counter}}" onchange="hygiene_check_not_difference()">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <input class="form-control" readonly type="text" {% if annexure.quantity_of_injectable_as_per_bill and annexure.quantity_of_injectable_as_per_consent_form and annexure.quantity_of_injectable_as_per_treatment_record %}
+                                {% if annexure.quantity_of_injectable_as_per_bill == annexure.quantity_of_injectable_as_per_consent_form and annexure.quantity_of_injectable_as_per_consent_form == annexure.quantity_of_injectable_as_per_treatment_record %} value="Yes" {% endif %} {% endif %} id="hc_difference_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <select class="form-control consumable-bill-quantity" name="" id="hc_dropdown_1_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.consumable_bill_quantity_matching_as_per_treatment_record == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.consumable_bill_quantity_matching_as_per_treatment_record == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.consumable_bill_quantity_matching_as_per_treatment_record == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <select class="form-control reception-copy" name="" id="hc_dropdown_2_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.reception_copy == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.reception_copy == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.reception_copy == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <select class="form-control security-copy" name="" id="hc_dropdown_3_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.security_copy == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.security_copy == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.security_copy == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                <select class="form-control security-sheet" name="" id="hc_dropdown_4_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.security_sheet == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.security_sheet == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.security_sheet == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control feedback-updated" name="" id="hc_dropdown_5_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.feedback_updated == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.feedback_updated == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.feedback_updated == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control job-card-attached" name="" id="hc_dropdown_6_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.job_card_attached == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.job_card_attached == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.job_card_attached == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control job-card-matches" name="" id="hc_dropdown_7_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.job_card_matches_invoice == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.job_card_matches_invoice == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.job_card_matches_invoice == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control client-profile-form" name="" id="hc_dropdown_8_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.client_profile_form == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.client_profile_form == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.client_profile_form == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control disclaimer-form" name="" id="hc_dropdown_9_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.disclaimer_form == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.disclaimer_form == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.disclaimer_form == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control consent-form" name="" id="hc_dropdown_10_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.consent_form == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.consent_form == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.consent_form == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control client-signature-matching-all-docs" name="" id="hc_dropdown_11_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.client_signature_matching_all_docs == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.client_signature_matching_all_docs == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.client_signature_matching_all_docs == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control treatment-record-entry" name="" id="hc_dropdown_12_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.treatment_record_entry == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.treatment_record_entry == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.treatment_record_entry == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control customer-signature-treatment-record" name="" id="hc_dropdown_13_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.customer_signature_treatment_record == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.customer_signature_treatment_record == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.customer_signature_treatment_record == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control doctor-signature-treatment-record " id="hc_dropdown_14_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.doctor_signature_treatment_record == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.doctor_signature_treatment_record == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.doctor_signature_treatment_record == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control redemption-of-all-service-under-right-package " id="hc_dropdown_15_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.redemption_of_all_service_under_right_package == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.redemption_of_all_service_under_right_package == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.redemption_of_all_service_under_right_package == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <select class="form-control consultant-signature" id="hc_dropdown_16_{{forloop.counter}}" onchange="hygiene_annexure_onchange()">
+                                    <option value=""></option>
+                                    <option {% if annexure.consultant_signature == 'Available' %} selected {% endif %} value="Available">Available</option>
+                                    <option {% if annexure.consultant_signature == 'Not Available' %} selected {% endif %} value="Not Available">Not Available</option>
+                                    <option {% if annexure.consultant_signature == 'Not Matching' %} selected {% endif %} value="Not Matching">Not Matching</option>
+                                </select>
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                {% if annexure.evidenceee  %}
+                                <a href="{{annexure.evidence.url}}">Evidence Link</a> <br>
+                                {% endif %}
+                                <input type="file" class="form-control" value="" id="evidence_annexure_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span>
+                                <input type="text" class="form-control" value="{{annexure.remark|default_if_none:''}}" id="remark_annexure_{{forloop.counter}}">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <form action="" method="post"> 
+                                {% csrf_token %} 
+                                <input type="hidden" name="del_id" id="" value="{{annexure.id}}">
+                                <button type="submit" name="hygiene_annexure_del_row" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                        <input type="hidden" value="{{annexure.id}}" id="checklist_annexure_id_{{forloop.counter}}">
+                    </tr> 
+                    {% endfor %} 
+                </tbody>
+            </table>
+        </div>
+        <br><br>
+        <div class="table-responsive">
+            <table class="table user-table mb-0" id="">
+                <thead class="text-white" style="background-color: rgb(151 112 112);">
+                    <tr>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> Invoice Date </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Invoice Number </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Client Name </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Category of Sample </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Difference in qty of injectables </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; ">Evidences</th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    {% for summary_annexure in all_hygiene_annexure %} 
+                    {% if summary_annexure.quantity_of_injectable_as_per_bill and summary_annexure.quantity_of_injectable_as_per_consent_form and summary_annexure.quantity_of_injectable_as_per_treatment_record %}
+                    {% if summary_annexure.quantity_of_injectable_as_per_bill == summary_annexure.quantity_of_injectable_as_per_consent_form and summary_annexure.quantity_of_injectable_as_per_consent_form == summary_annexure.quantity_of_injectable_as_per_treatment_record %}
+                    <tr>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                {{summary_annexure.invoice_date}}
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                {{summary_annexure.invoice_number}}
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                {{summary_annexure.client_name}}         
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                {{summary_annexure.category_of_sample}}
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                Yes
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="">
+                                {% if summary_annexure.evidenceee %} 
+                                <a href="{{summary_annexure.evidence.url}}">Evidence Link</a> <br> 
+                                {% endif %}
+                            </span>
+                        </td>
+                        
+                    </tr> 
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %} 
+                </tbody>
+            </table>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_hygiene_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<div class="modal fade" id="add_clinic_hygiene_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="hygiene_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function hygiene_check_not_difference(){
+        var annexure_table = document.getElementById('hygiene_annexure_table');
+        var total_rows = annexure_table.tBodies[0].rows.length;
+        for (var i=0; i < total_rows; i++){
+            var loop_id = i+1;
+            var as_bill =  document.getElementById('injectable_as_bill_'+loop_id).value;
+            var as_consent = document.getElementById('injectable_as_consent_'+loop_id).value;
+            var as_treatment = document.getElementById('injectable_as_treatment_'+loop_id).value;
+            if(as_bill && as_consent && as_treatment){
+                if(as_bill == as_consent && as_consent == as_treatment){
+                    document.getElementById('hc_difference_'+loop_id).value = 'Yes';
+                }else{
+                    document.getElementById('hc_difference_' + loop_id).value = '';
+                }
+            }else{
+                document.getElementById('hc_difference_' + loop_id).value = '';
+            }
+
+        }
+    }
+    function hygiene_annexure_onchange() {
+        var all_columns = [
+            ['consumable-bill-quantity', ['compliance_hc_1']],
+            ['reception-copy', ['compliance_hc_2']],
+            ['security-copy', ['compliance_hc_3']],
+            ['security-sheet', ['compliance_hc_4']],
+            ['feedback-updated', ['compliance_hc_5']],
+            ['job-card-attached', ['compliance_hc_6']],
+            ['job-card-matches', ['compliance_hc_7']],
+            ['client-profile-form', ['compliance_hc_8', 'compliance_hc_9']],
+            ['disclaimer-form', ['compliance_hc_10', 'compliance_hc_11']],
+            ['consent-form', ['compliance_hc_12', 'compliance_hc_13']],
+            ['client-signature-matching-all-docs', ['compliance_hc_14', 'compliance_hc_15']],
+            ['treatment-record-entry', ['compliance_hc_16', 'compliance_hc_17', 'compliance_hc_18']],
+            ['customer-signature-treatment-record', ['compliance_hc_19']],
+            ['doctor-signature-treatment-record', ['compliance_hc_20', 'compliance_hc_21']],
+            ['redemption-of-all-service-under-right-package', ['compliance_hc_22', 'compliance_hc_23', 'compliance_hc_24']],
+            ['consultant-signature', ['compliance_hc_25', 'compliance_hc_26']]
+        ];
+        for (var i = 0; i < all_columns.length; i++) {
+            var this_column = all_columns[i][0];
+            var elements = document.getElementsByClassName(this_column);
+            var avail = 0, not_applicable = 0, not_matching = 0, not_avail = 0;
+            for (m = 0; m < elements.length; m++) {
+                var this_value = elements[m].value;
+                if (this_value == 'Available') { avail++ }
+                if (this_value == 'Not Applicable') { not_applicable++ }
+                if (this_value == 'Not Matching') { not_matching++ }
+                if(this_value == 'Not Available') { not_avail++ }
+            }
+            var total = avail + not_applicable + not_matching + not_avail;
+            if (total == 0) { continue };
+            var decimal = avail/total;
+            var compliance = 'Not Followed';
+            if (decimal >= 0.9) { compliance = 'Followed' } else if (decimal >= 0.75) { compliance = 'Partially Followed' }
+            for(var j =0; j < all_columns[i][1].length; j++){
+                var compliance_element_id = all_columns[i][1][j];
+                document.getElementById(compliance_element_id).value = compliance;
+            }
+
+        }
+    }
+
+
+
+    function edit_all_hygiene_data() {
+        $('#cover-spin').show(0);
+        var hygiene_check_list = [];
+        var hygiene_annexure_list = [];
+        for (var i = 0; i < 26; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('responsible_hc_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('relativegap_hc_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_hc_' + field_id).value;
+            data_obj['id'] = document.getElementById('checklist_hc_id_' + field_id).value;
+            hygiene_check_list.push(data_obj);
+        }
+        console.log(hygiene_check_list)
+        var annexure_table = document.getElementById('hygiene_annexure_table');
+        var total_rows = annexure_table.tBodies[0].rows.length;
+        console.log(total_rows)
+        for (var i = 0; i < total_rows; i++) {
+            var loop_id = i + 1
+            hygiene_annexure_obj = {}
+            hygiene_annexure_obj['sample_date'] = document.getElementById('sample_date_' + loop_id).value;
+            hygiene_annexure_obj['total_guest'] = document.getElementById('total_guest_' + loop_id).value;
+            hygiene_annexure_obj['sample_size'] = document.getElementById('sample_size_' + loop_id).value;
+            hygiene_annexure_obj['invoice_date'] = document.getElementById('invoice_date_' + loop_id).value;
+            hygiene_annexure_obj['invoice_number'] = document.getElementById('invoice_number_' + loop_id).value;
+            hygiene_annexure_obj['client_name'] = document.getElementById('client_name_' + loop_id).value;
+            hygiene_annexure_obj['category_of_sample'] = document.getElementById('category_sample_' + loop_id).value;
+            hygiene_annexure_obj['injectable_bill'] = document.getElementById('injectable_as_bill_' + loop_id).value;
+            hygiene_annexure_obj['injectable_consent'] = document.getElementById('injectable_as_consent_' + loop_id).value;
+            hygiene_annexure_obj['injectable_treatment'] = document.getElementById('injectable_as_treatment_' + loop_id).value;
+            hygiene_annexure_obj['consumable_bill'] = document.getElementById('hc_dropdown_1_' + loop_id).value;
+            hygiene_annexure_obj['reception_copy'] = document.getElementById('hc_dropdown_2_' + loop_id).value;
+            hygiene_annexure_obj['security_copy'] = document.getElementById('hc_dropdown_3_' + loop_id).value;
+            hygiene_annexure_obj['security_sheet'] = document.getElementById('hc_dropdown_4_' + loop_id).value;
+            hygiene_annexure_obj['feedback_updated'] = document.getElementById('hc_dropdown_5_' + loop_id).value;
+            hygiene_annexure_obj['job_card_attached'] = document.getElementById('hc_dropdown_6_' + loop_id).value;
+            hygiene_annexure_obj['job_card_matches'] = document.getElementById('hc_dropdown_7_' + loop_id).value;
+            hygiene_annexure_obj['client_form'] = document.getElementById('hc_dropdown_8_' + loop_id).value;
+            hygiene_annexure_obj['disclaimer_form'] = document.getElementById('hc_dropdown_9_' + loop_id).value;
+            hygiene_annexure_obj['consent_form'] = document.getElementById('hc_dropdown_10_' + loop_id).value;
+            hygiene_annexure_obj['client_signature'] = document.getElementById('hc_dropdown_11_' + loop_id).value;
+            hygiene_annexure_obj['treatment_entry'] = document.getElementById('hc_dropdown_12_' + loop_id).value;
+            hygiene_annexure_obj['customer_signature'] = document.getElementById('hc_dropdown_13_' + loop_id).value;
+            hygiene_annexure_obj['doctor_signature'] = document.getElementById('hc_dropdown_14_' + loop_id).value;
+            hygiene_annexure_obj['redemption_services'] = document.getElementById('hc_dropdown_15_' + loop_id).value;
+            hygiene_annexure_obj['consultant_signature'] = document.getElementById('hc_dropdown_16_' + loop_id).value;
+            hygiene_annexure_obj['evidence'] = document.getElementById('evidence_annexure_'+loop_id).value;
+            hygiene_annexure_obj['remark'] = document.getElementById('remark_annexure_' + loop_id).value;
+            hygiene_annexure_obj['id'] = document.getElementById('checklist_annexure_id_' + loop_id).value;
+            hygiene_annexure_list.push(hygiene_annexure_obj);
+        }
+        fetch("/edit_audit_clinic_hygiene_check/", {
+            method: "POST",
+            body: JSON.stringify({
+                'hygine_checklist': hygiene_check_list,
+                'hygiene_annexure_list': hygiene_annexure_list,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

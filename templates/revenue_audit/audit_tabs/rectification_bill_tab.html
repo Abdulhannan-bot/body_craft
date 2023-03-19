@@ -1,0 +1,274 @@
+{% load mathfilters %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for rectification in all_rectification_bil %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{rectification.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{rectification.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_rectification_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if rectification.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{service.relative_gap_found|default_if_none:''}}" id="gap_found_del_service_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="compliance_rectification_{{forloop.counter}}" value="{{rectification.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{rectification.id}}" id="rectification_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Rectifcation Tracker Updated </th>
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> No. of Rectification bill's as per zenoti </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> No. of issues as per zenoti for Rectifications </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Difference </th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <select class="form-control" name="" id="rectification_tracker_updated_1" onchange="get_rectification_difference()">
+                                    <option value=""></option>
+                                    <option {% if revenue_audit.rectification_tracker_updated == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                    <option {% if revenue_audit.rectification_tracker_updated == 'No' %} selected {% endif %}  value="No">No</option>
+                                    <option {% if revenue_audit.rectification_tracker_updated == 'NA' %} selected {% endif %}  value="NA">NA</option>
+                                </select>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.no_of_rectification_bill_as_per_zenoti}}" id="rectification_bill_1" onchange="get_rectification_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.no_of_issues_as_per_zenoti_for_rectification_bill}}" id="rectification_issues_1" onchange="get_rectification_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span>
+                                    <input class="form-control" readonly type="text" id="rectification_difference_1"
+                                    value="{{ revenue_audit.no_of_rectification_bill_as_per_zenoti|sub:revenue_audit.no_of_issues_as_per_zenoti_for_rectification_bill }}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{revenue_audit.id}}" id="rectification_revenue_audit_id_1">
+                            </td>
+                        </tr> 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="m-2">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Action </button>
+                    <div class="dropdown-menu">
+                        <form action="" method="post"> 
+                            {% csrf_token %} 
+                            <Button class="dropdown-item" type="submit" name="create_one_rectification_annexure_row"> Add single row </Button>
+                        </form>
+                        <Button class="dropdown-item" data-toggle="modal" data-target="#add_rectification_annexure_row_modal"> Add Multiple row</Button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table user-table mb-0" id="rectification_bill_annexure_table">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Bill No. </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Issue No. </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 250px; "> Remark </th>
+                            <th scope="col" class="border-0 text-bold" style="min-width: 30px;"> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for rect_annexure in all_rectification_annexure %} 
+                        <tr {% if rect_annexure.bill_no and rect_annexure.issue_no %} style="background-color: rgb(231 231 244);" 
+                        {% endif %}>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{rect_annexure.bill_no|default_if_none:''}}" id="rectification_bill_no_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{rect_annexure.issue_no|default_if_none:'' }}" id="rectification_issue_no_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{rect_annexure.remark|default_if_none:''}}" id="rectification_remark_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <form action="" method="post"> 
+                                    {% csrf_token %} 
+                                    <input type="hidden" name="del_id" id="" value="{{rect_annexure.id}}">
+                                    <button type="submit" name="rectification_bill_annexure_del_row" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <input type="hidden" value="{{rect_annexure.id}}" id="rectification_bill_annexure_id_{{forloop.counter}}">
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_rectification_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<div class="modal fade" id="add_rectification_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> 
+                    {% csrf_token %} 
+                    <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="rectification_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function get_rectification_difference() {
+        var rectifcation_issues = document.getElementById('rectification_issues_1').value;
+        var rectification_bill = document.getElementById('rectification_bill_1').value;
+        var rectification_update = document.getElementById('rectification_tracker_updated_1').value;
+        var rectification_diference = document.getElementById('rectification_difference_1').value = rectification_bill - rectifcation_issues;
+        if (rectification_update == 'Yes' && rectification_diference == 0) {
+            document.getElementById('compliance_rectification_1').value = 'Followed';
+        } else {
+            document.getElementById('compliance_rectification_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_rectification_data() {
+        $('#cover-spin').show(0);
+        var rectification_bill_check_list = [];
+        var rectification_bill_unique_question = [];
+        var rectification_annexure_list = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_rectification_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_appointment_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_rectification_' + field_id).value;
+            data_obj['id'] = document.getElementById('rectification_id_' + field_id).value;
+            rectification_bill_check_list.push(data_obj);
+        }
+
+        var rectification_unique_question_obj = {}
+        rectification_unique_question_obj['tracker_updated'] = document.getElementById('rectification_tracker_updated_1').value;
+        rectification_unique_question_obj['no_of_rect_bill'] = document.getElementById('rectification_bill_1').value;
+        rectification_unique_question_obj['no_of_rect_issues'] = document.getElementById('rectification_issues_1').value;
+        rectification_unique_question_obj['id'] = document.getElementById('rectification_revenue_audit_id_1').value;
+        rectification_bill_unique_question.push(rectification_unique_question_obj);
+        // console.log(rectification_bill_unique_question)
+        // console.log(hygiene_check_list)
+        var rectification_annexure_table = document.getElementById('rectification_bill_annexure_table');
+        var total_rows = rectification_annexure_table.tBodies[0].rows.length;
+        for (var i = 0; i < total_rows; i++) {
+            var loop_id = i + 1;
+            var rectification_annexure_obj= {}
+            rectification_annexure_obj['bill'] = document.getElementById('rectification_bill_no_' + loop_id).value;
+            rectification_annexure_obj['issue'] = document.getElementById('rectification_issue_no_' + loop_id).value;
+            rectification_annexure_obj['remark'] = document.getElementById('rectification_remark_' + loop_id).value;
+            rectification_annexure_obj['id'] = document.getElementById('rectification_bill_annexure_id_' + loop_id).value;
+            rectification_annexure_list.push(rectification_annexure_obj);
+        }
+
+        fetch("/edit_audit_rectification_bill/", {
+            method: "POST",
+            body: JSON.stringify({
+                'rectification_bill_check_list': rectification_bill_check_list,
+                'rectification_bill_unique_question': rectification_bill_unique_question,
+                'rectification_annexure_list': rectification_annexure_list,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

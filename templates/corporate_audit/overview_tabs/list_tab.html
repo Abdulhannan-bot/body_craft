@@ -1,0 +1,410 @@
+{% load static %} 
+<div class="row justify-content-end mr-2">
+    <button class="btn btn-warning text-white" data-toggle="modal" data-target="#add_corporate_modal">
+        <i class="fas fa-plus"></i> Add New Audit </button>
+</div> 
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table no-wrap user-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Added By </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Corporate Audit </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Center </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Services </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Completed</th>
+                            <th scope="col" class="border-0 text-bold" style="width: 10%;" colspan="2"> Action </th>
+                            <!-- <th style="width: 5%;"></th> -->
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for mystery in all_corporate %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    {{mystery.added_by|default_if_none:'' }} <br>
+                                    {{mystery.added_on|date:" d M Y"|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    {{mystery.shopper_name|default_if_none:'' }} <br>
+                                    {{mystery.date|default_if_none:'' }}
+                                    <!-- {{mystery.start_time|default_if_none:'' }} - {{mystery.end_time|default_if_none:'' }} -->
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    {{mystery.center|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: pre-wrap;"><span class="text-muted">{{mystery.service_availed|default_if_none:'' }}</span>
+                            </td> -->
+                            <td style="white-space: normal;"> 
+                                {% if mystery.auditor_completed == True %} <button class="btn btn-outline-primary" disabled>
+                                    <i class="fas fa-check"></i></button> {% else %} <button class="btn btn-outline-primary" disabled>&nbsp;</button> {% endif %} {% if mystery.admin_reviewed == True %} <button class="btn btn-outline-primary" disabled><i class="fas fa-thumbs-up"></i></button> {% else %} <button class="btn btn-outline-primary" disabled>&nbsp;</button> {% endif %}
+                            </td> 
+                            <td>
+                                <button class="btn-info" onclick="viewMysteryDetail('{{mystery.id}}')">
+                                    <i class="fas fa-eye"></i></button>
+                            </td>
+                            <td>
+                                <button class="btn-info" id="edit_{{mystery.id}}" onclick="edit_mystery_popup(this)"><i class="fas fa-edit"></i></button>
+                            </td> 
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- add mystery modal  -->
+<div class="modal fade" id="add_corporate_modal" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="exampleModalLongTitle">Add New Corporate </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="" id="form_id"> 
+                    {% csrf_token %} 
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Center</label>
+                                {{corporate_form.center}}
+                                <!-- <input type="text" class="form-control" placeholder="name.." name="name" id="" required> -->
+                            </div>
+                        </div>
+                        <!-- <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Invoice Number</label>
+                                {{corporate_form.invoice_number}}
+                                
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Contact no. (For Appointment)</label>
+                                {{corporate_form.contact_number_reached_for_appointment}}
+                                
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Corporate Auditor Name</label>
+                                {{corporate_form.shopper_name}}
+                            </div>
+                        </div>
+                        <!-- <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">phone</label>
+                                {{corporate_form.mobile}}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Email</label>
+                                
+                                {{corporate_form.email}}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Gender</label>
+                                {{corporate_form.gender}}
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Date of Audit</label>
+                                {{corporate_form.date}}
+                            </div>
+                        </div>
+                        <!-- <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Start Time</label>
+                                {{corporate_form.start_time}}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">End Time</label>
+                                {{corporate_form.end_time}}
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-success" type="submit" name="corporate_form">Add Audit</button>
+                    </div>
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+<!-- edit mystery shopping modal  -->
+<div class="modal fade" id="edit_corporate_modal" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="exampleModalLongTitle">Edit Mystery </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="" id=""> 
+                    {% csrf_token %} 
+                    <div class="form-group mb-4" style="display: none;">
+                        <label class="mr-sm-2" for="inlineFormCustomSelect">id</label>
+                        <!-- {{mystery_form.center}} -->
+                        <input type="text" class="form-control" placeholder="name.." name="mystery_pk" id="mystery_pk" required>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Center</label>
+                                <!-- {{mystery_form.center}} -->
+                                <select class="form-control" name="edit_center" id="edit_center" required>
+                                    <option value="">Select Center</option> 
+                                    {% for center in all_center %} 
+                                    <option value="{{center.id}}">{{center}}</option> 
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Invoice Number</label>
+                                <input type="text" class="form-control" placeholder="" name="edit_invoice_number" id="edit_invoice_number" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Contact no. (for Appointment)</label>
+                                <input type="text" class="form-control" name="edit_number_reached" id="edit_number_reached" required>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Corporate Auditor Name</label>
+                                <input type="text" class="form-control" placeholder="name.." name="edit_shopper_name" id="edit_shopper_name" required>
+                            </div>
+                        </div>
+                        <!-- <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">phone</label>
+                                <input type="text" class="form-control" placeholder="" name="edit_phone" id="edit_phone" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Email</label>
+                                <input type="text" class="form-control" placeholder="" name="edit_email" id="edit_email" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Gender</label>
+                                <input type="text" class="form-control" placeholder="" name="edit_gender" id="edit_gender" required>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Date of Audit</label>
+                                <!-- {{mystery_form.date}} -->
+                                <input type="date" class="form-control" placeholder="" name="edit_date" id="edit_date" required>
+                            </div>
+                        </div>
+                        <!-- <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Start Time</label>
+                                
+                                <input type="time" class="form-control" placeholder="" name="edit_start" id="edit_start" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-4">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">End Time</label>
+                                
+                                <input type="time" class="form-control" placeholder="" name="edit_end" id="edit_end" required>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="row">
+                        <div class="col text-right">
+                            <div class="form-group mb-4">
+                                <input class="" type="checkbox" name="edit_auditor_completed" id="edit_auditor_completed">
+                                <label class="" for="inlineFormCustomSelect">Auditor Completed</label>
+                                <!-- <input type="text" class="form-control" placeholder="password.." name="passcode" id="" required> -->
+                            </div>
+                        </div>
+                        <div class="col text-left">
+                            <div class="form-group mb-4">
+                                <input class="" type="checkbox" name="edit_admin_review" id="edit_admin_review">
+                                <label class="mr-sm-2" for="inlineFormCustomSelect">Admin Reviewed</label>
+                                <!-- <input type="text" class="form-control" placeholder="password.." name="passcode" id="" required> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-success" type="submit" name="edit_corporate">Upate</button> &nbsp; <button class="btn btn-danger" type="button" onclick="delete_confirmation_show()">Delete</button>
+                    </div>
+                </form>
+            </div>
+            <div class="m-4" id="del_confirm" style="display: none;">
+                <form action="" method="post"> {% csrf_token %} <div class="form-group mb-4" style="display: none;">
+                        <label class="mr-sm-2" for="inlineFormCustomSelect">mystery pk</label>
+                        <input type="text" name="del_id" id="del_pk">
+                        <!-- <input type="text" class="form-control" placeholder="name.." name="name" id="" required> -->
+                    </div>
+                    <h3 class="text-danger text-center">Are you sure, you want to delete this ?</h3>
+                    <div class="row justify-content-center">
+                        <button type="submit" class="btn btn-primary" name="del_corporate">Yes</button> &nbsp; <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    </div>
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+<div> 
+    {% if all_corporate.paginator.num_pages > 1%} <!-- Paginator -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not all_corporate.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="?page=1{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" tabindex="-1">FIRST</a>
+            </li>
+            <li class="page-item {% if not all_corporate.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="{% if all_corporate.has_previous %}?page={{ all_corporate.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %} " tabindex="-1">&laquo;</a>
+            </li> {% if all_corporate.number|add:'-4' > 1 %} <li class="page-item disabled">
+                <a class="page-link" href="?page={{ all_corporate.number|add:'-5' }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+            </li> {% endif %} {% for i in all_corporate.paginator.page_range %} {% if all_corporate.number == i %} <li class="active page-item current ">
+                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+            </li> {% elif i > all_corporate.number|add:'-5' and i < all_corporate.number|add:'5' %} <li class="page-item">
+                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                </li> {% endif %} {% endfor %} {% if all_corporate.paginator.num_pages > all_corporate.number|add:'4' %} <li class="page-item disabled">
+                    <a class="page-link" href="?page={{ all_corporate.number|add:'5' }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+                </li> {% endif %} <li class="page-item {% if not all_corporate.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_corporate.has_next %} ?page={{ all_corporate.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">&raquo;</a>
+                </li>
+                <li class="page-item {% if not all_corporate.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_corporate.has_next %} ?page={{ all_corporate.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">LAST</a>
+                </li>
+        </ul>
+    </nav> 
+    {% endif %}
+</div>
+<script>
+    function viewMysteryDetail(mystery_id) {
+        window.location.href = `/corporate_audit_detail/${mystery_id}/`;
+        return false;
+    }
+
+    function delete_confirmation_show() {
+        var del_id = document.getElementById('del_pk');
+        var mystery_pk = document.getElementById('mystery_pk').value;
+        del_id.value = mystery_pk;
+        document.getElementById("del_confirm").style.display = 'block';
+    }
+
+    function edit_mystery_popup(t) {
+        // console.log('id', t)
+        var btn_id = t.id.split('_')[1];
+        $('#cover-spin').show(0);
+        document.getElementById("del_confirm").style.display = 'none';
+        var shopper_name = document.getElementById('edit_shopper_name');
+        var center = document.getElementById('edit_center');
+        // var phone = document.getElementById('edit_phone');
+        // var email = document.getElementById('edit_email');
+        // var gender = document.getElementById('edit_gender');
+        // var start_time = document.getElementById('edit_start');
+        // var end_time = document.getElementById('edit_end');
+        var date = document.getElementById('edit_date');
+        // var invoice_number = document.getElementById('edit_invoice_number');
+        var auditor_completed = document.getElementById('edit_auditor_completed');
+        var admin_reviewed = document.getElementById('edit_admin_review');
+        // var number_reached = document.getElementById('edit_number_reached');
+        var mystery_pk = document.getElementById('mystery_pk');
+        var mystery_id = btn_id;
+        fetch("/edit_corporate_audit_overview/", {
+            method: "POST",
+            body: JSON.stringify({
+                data_obj: mystery_id,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Success: ", data);
+                var mystery_data = data.mystery_json
+                var final_data = mystery_data[0]['fields'];
+                if (data.msg == 'success') {
+                    // document.getElementById("edit_" + scheduler_id).style.display = 'none';
+                    // console.log('d', final_data)
+                    mystery_pk.value = mystery_id;
+                    // employee.value = final_data['employee'];
+                    $("#edit_center").children(`[value="${final_data['center']}"]`).prop("selected", true).trigger("change");
+                    shopper_name.value = final_data['shopper_name'];
+                    // phone.value = final_data['mobile'];
+                    // email.value = final_data['email'];
+                    // gender.value = final_data['gender'];
+                    // start_time.value = final_data['start_time'];
+                    // end_time.value = final_data['end_time'];
+                    date.value = final_data['date'];
+                    // service_availed.value = final_data['service_availed'];
+                    // invoice_number.value = final_data['invoice_number'];
+                    // number_reached.value = final_data['contact_number_reached_for_appointment'];
+                    console.log('check', final_data['auditor_completed'])
+                    if (final_data['auditor_completed'] == true) {
+                        auditor_completed.checked = true;
+                    } else {
+                        auditor_completed.checked = false;
+                    }
+                    if (final_data['admin_reviewed'] == true) {
+                        admin_reviewed.checked = true;
+                    } else {
+                        admin_reviewed.checked = false;
+                    }
+                    $('#edit_corporate_modal').modal('show');
+                    $('#cover-spin').hide(0);
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+
+
+    }
+</script>

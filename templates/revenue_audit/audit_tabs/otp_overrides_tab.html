@@ -1,0 +1,194 @@
+{% load mathfilters %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for otp in all_otp_checklist %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{otp.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{otp.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_otp_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if otp.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" readonly value="{{otp.compliance|default_if_none:''}}" id="compliance_otp_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{otp.id}}" id="otp_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 20%;"> Checklist </th> -->
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> No. of OTP overrides as per Zenoti </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> OM approved OTP overrides (OM/SLM ID) </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Difference </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted"> Blockouts </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input type="number" class="form-control" id="no_of_otp_overrides_1" value="{{revenue_audit.no_of_otp_overrides_as_per_zenoti}}" onchange="get_otp_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="number" class="form-control" id="om_approved_otp_overrides_1" value="{{revenue_audit.om_approved_otp_overrides}}" onchange="get_otp_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input readonly class="form-control" id="otp_difference_1" 
+                                    value="{{ revenue_audit.no_of_otp_overrides_as_per_zenoti|sub:revenue_audit.om_approved_otp_overrides }}" >
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <input class="form-control" type="text" value="{{revenue_audit.otp_override_remark|default_if_none:''}}" id="otp_remark_1">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{revenue_audit.id}}" id="otp_revenue_audit_id">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_otp_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<!-- <div class="modal fade" id="add_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="hygiene_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+<script>
+
+    function get_otp_difference() {
+        // ****if Both field is 0, it is Followed, else Not Followed
+        var otp_override = document.getElementById('no_of_otp_overrides_1').value;
+        var om_approved = document.getElementById('om_approved_otp_overrides_1').value;
+        var otp_difference = document.getElementById('otp_difference_1').value = otp_override - om_approved;
+        if (otp_difference == 0) {
+            document.getElementById('compliance_otp_1').value = 'Followed';
+        } else {
+            document.getElementById('compliance_otp_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_otp_data() {
+        $('#cover-spin').show(0);
+        var otp_check_list = [];
+        var otp_unique_question = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_otp_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_blockout_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_otp_' + field_id).value;
+            data_obj['id'] = document.getElementById('otp_id_' + field_id).value;
+            otp_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        otp_unique_question_obj = {}
+        otp_unique_question_obj['otp_override'] = document.getElementById('no_of_otp_overrides_1').value;
+        otp_unique_question_obj['om_approved'] = document.getElementById('om_approved_otp_overrides_1').value;
+        otp_unique_question_obj['remark'] = document.getElementById('otp_remark_1').value;
+        otp_unique_question_obj['id'] = document.getElementById('otp_revenue_audit_id').value;
+        otp_unique_question.push(otp_unique_question_obj)
+
+        fetch("/edit_audit_otp/", {
+            method: "POST",
+            body: JSON.stringify({
+                'otp_check_list': otp_check_list,
+                'otp_unique_question': otp_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

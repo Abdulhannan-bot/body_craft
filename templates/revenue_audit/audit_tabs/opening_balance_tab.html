@@ -1,0 +1,203 @@
+{% load mathfilters %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for balance in all_opening_balance_checklist %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{balance.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{balance.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_balance_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if balance.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{blockout.relative_gap_found|default_if_none:''}}" id="gap_found_blockout_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" readonly value="{{balance.compliance|default_if_none:''}}" id="compliance_balance_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{balance.id}}" id="balance_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 20%;"> Checklist </th> -->
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> OB as per statement </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> OB as per PV </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Difference </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted"> Blockouts </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.ob_as_per_statement}}" id="ob_as_statement" onchange="get_ob_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="number" class="form-control" value="{{revenue_audit.ob_as_per_pv}}" id="ob_as_pv" onchange="get_ob_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="text" readonly class="form-control" id="ob_difference" 
+                                    value="{{revenue_audit.ob_as_per_statement|sub:revenue_audit.ob_as_per_pv}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <input class="form-control" type="text" value="{{revenue_audit.ob_remark|default_if_none:''}}" id="ob_remark">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{revenue_audit.id}}" id="ob_revenue_audit_id">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_ob_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<!-- <div class="modal fade" id="add_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="hygiene_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+<script>
+
+    function get_ob_difference() {
+        // ****if Both field is 0, it is Followed, else Not Followed
+        var ob_as_per_statement_value = document.getElementById('ob_as_statement').value;
+        var ob_as_per_pv_value = document.getElementById('ob_as_pv').value;
+        var ob_difference = document.getElementById('ob_difference').value = ob_as_per_statement_value - ob_as_per_pv_value;
+        if (ob_as_per_statement_value && ob_as_per_pv_value) {
+            if (ob_difference == 0) {
+                document.getElementById('compliance_balance_1').value = 'Followed';
+            } else {
+                document.getElementById('compliance_balance_1').value = 'Not Followed';
+            }
+        } else {
+            document.getElementById('compliance_balance_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_ob_data() {
+        $('#cover-spin').show(0);
+        var openingbalance_check_list = [];
+        var openingbalance_unique_question = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_balance_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_blockout_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_balance_' + field_id).value;
+            data_obj['id'] = document.getElementById('balance_id_' + field_id).value;
+            openingbalance_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        openingbalance_unique_question_obj = {}
+        openingbalance_unique_question_obj['statement'] = document.getElementById('ob_as_statement').value;
+        openingbalance_unique_question_obj['pv'] = document.getElementById('ob_as_pv').value;
+        openingbalance_unique_question_obj['remark'] = document.getElementById('ob_remark').value;
+        openingbalance_unique_question_obj['id'] = document.getElementById('ob_revenue_audit_id').value;
+        openingbalance_unique_question.push(openingbalance_unique_question_obj)
+
+        fetch("/edit_audit_opening_balance/", {
+            method: "POST",
+            body: JSON.stringify({
+                'openingbalance_check_list': openingbalance_check_list,
+                'openingbalance_unique_question': openingbalance_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

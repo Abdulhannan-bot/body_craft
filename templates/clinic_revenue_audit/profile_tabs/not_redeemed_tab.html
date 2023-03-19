@@ -1,0 +1,291 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for not_redeemed in all_not_redeemed_checklist %} <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{not_redeemed.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{not_redeemed.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_not_redeemed_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if not_redeemed.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{service.relative_gap_found|default_if_none:''}}" id="gap_found_del_service_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="compliance_not_redeemed_{{forloop.counter}}" value="{{not_redeemed.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{not_redeemed.id}}" id="not_redeemed_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="m-2">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Action </button>
+                    <div class="dropdown-menu">
+                        <form action="" method="post"> 
+                            {% csrf_token %} 
+                            <Button class="dropdown-item" type="submit" name="create_one_clinic_not_redeemed_annexure_row"> Add single row </Button>
+                        </form>
+                        <Button class="dropdown-item" data-toggle="modal" data-target="#add_clinic_not_redeemed_annexure_row_modal"> Add Multiple row </Button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table user-table mb-0" id="not_redeemed_annexure_table">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Date as per Treatment Record </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Phone Number </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Client Name </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Category of Sample </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Quantity of Not Redeemed </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Evidences </th>
+                            <th scope="col" class="border-0 text-bold" style="min-width: 30px;"> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for not_redeemed_annexure in all_not_redeemed_annexure %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="date" value="{{not_redeemed_annexure.date_as_per_record|default_if_none:''}}" id="nr_date_as_record_{{forloop.counter}}" onchange="get_clinic_not_redeemed_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{not_redeemed_annexure.phone_number|default_if_none:'' }}" id="nr_phone_{{forloop.counter}}" onchange="get_clinic_not_redeemed_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{not_redeemed_annexure.client_name|default_if_none:'' }}" id="nr_client_name{{forloop.counter}}" onchange="get_clinic_not_redeemed_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{not_redeemed_annexure.category_of_sample|default_if_none:'' }}" id="nr_category_sample_{{forloop.counter}}" onchange="get_clinic_not_redeemed_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{not_redeemed_annexure.quantity_of_not_redeemed|default_if_none:'' }}" id="nr_quantity_{{forloop.counter}}" onchange="get_clinic_not_redeemed_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {% if not_redeemed_annexure.evidenceee %} 
+                                    <a href="{{ not_redeemed_annexure.evidence.url }}" target="_blank">Evidence link</a> 
+                                    {% endif %}
+                                    <input class="form-control" type="file" id="nr_evidence_{{forloop.counter}}" onchange="get_clinic_not_redeemed_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <form action="" method="post"> 
+                                    {% csrf_token %} 
+                                    <input type="hidden" name="del_id" id="" value="{{not_redeemed_annexure.id}}">
+                                    <button type="submit" name="not_redeemed_annexure_del_row" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <input type="hidden" value="{{not_redeemed_annexure.id}}" id="not_redeemed_annexure_annexure_id_{{forloop.counter}}">
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_clinic_not_redeemed_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<div class="modal fade" id="add_clinic_not_redeemed_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="clinic_not_redeemed_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function get_clinic_not_redeemed_difference() {
+        var not_redeemed_annexure_table = document.getElementById('not_redeemed_annexure_table');
+        var total_rows = not_redeemed_annexure_table.tBodies[0].rows.length;
+        var total_sum = 0
+        for (var i = 0; i < total_rows; i++) {
+            var loop_id = i + 1;
+            var date_record = document.getElementById('nr_date_as_record_' + loop_id).value;
+            var phone = document.getElementById('nr_phone_' + loop_id).value;
+            var name = document.getElementById('nr_client_name' + loop_id).value;
+            var category_sample = document.getElementById('nr_category_sample_' + loop_id).value;
+            var quantity = document.getElementById('nr_quantity_' + loop_id).value;
+            var evidence = document.getElementById('nr_evidence_' + loop_id).value;
+            if (date_record.length > 0 || phone.length > 0 || name.length > 0 || category_sample.length >0 || quantity.length > 0 || evidence.length > 0) {
+                total_sum += 1
+            }
+        }
+        if (total_sum == 0) {
+            document.getElementById('compliance_not_redeemed_1').value = '';
+            document.getElementById('compliance_not_redeemed_2').value = '';
+            document.getElementById('compliance_not_redeemed_3').value = '';
+            document.getElementById('compliance_not_redeemed_4').value = '';
+            document.getElementById('compliance_not_redeemed_5').value = '';
+        } else {
+            document.getElementById('compliance_not_redeemed_1').value = 'Not Followed';
+            document.getElementById('compliance_not_redeemed_2').value = 'Not Followed';
+            document.getElementById('compliance_not_redeemed_3').value = 'Not Followed';
+            document.getElementById('compliance_not_redeemed_4').value = 'Not Followed';
+            document.getElementById('compliance_not_redeemed_5').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_clinic_not_redeemed_data() {
+        $('#cover-spin').show(0);
+        var not_redeemed_check_list = [];
+        var not_redeemed_unique_question = [];
+        for (var i = 0; i < 5; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_not_redeemed_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_appointment_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_not_redeemed_' + field_id).value;
+            data_obj['id'] = document.getElementById('not_redeemed_id_' + field_id).value;
+            not_redeemed_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        var not_redeemed_annexure_table = document.getElementById('not_redeemed_annexure_table');
+        var total_rows = not_redeemed_annexure_table.tBodies[0].rows.length;
+        for (var i = 0; i < total_rows; i++) {
+            var loop_id = i + 1;
+            console.log(document.getElementById('nr_evidence_' + loop_id).value)
+            // var formData = new FormData($(`#nr_evidence_${loop_id}`)[0]);
+            // console.log('file', formData)
+        //    var fileUpload = $(`#nr_evidence_${loop_id}`).get(0);
+        //     var files = fileUpload.files;
+
+        //     // Create FormData object
+        //     var fileData = new FormData();
+
+        //     // Looping over all files and add it to FormData object
+        //     for (var i = 0; i < files.length; i++) {
+        //         fileData.append("files", files[i]);
+        //     }
+        //     // Adding one more key to FormData object
+        //     fileData.append('FirstName', $("#nameText").val());
+            // jQuery.ajax({
+            //     url: 'insertfiles.php',
+            //     type: "POST",
+            //     data: formData,
+            //     success: function (data) {
+
+            //     },
+            //     error: function (data) {
+            //         alert('Sorry.');
+            //     },
+            //     cache: false,
+            //     contentType: false,
+            //     processData: false,
+            // });
+            // const input = document.querySelector("input[type='file']");
+            // input.addEventListener("change", function () {
+            //     const file = input.files[0];
+            //     // Do something with the file
+            // });
+            var not_redeemed_unique_question_obj = {}
+            not_redeemed_unique_question_obj['date_record'] = document.getElementById('nr_date_as_record_' + loop_id).value;
+            not_redeemed_unique_question_obj['phone'] = document.getElementById('nr_phone_' + loop_id).value;
+            not_redeemed_unique_question_obj['name'] = document.getElementById('nr_client_name' + loop_id).value;
+            not_redeemed_unique_question_obj['category_sample'] = document.getElementById('nr_category_sample_' + loop_id).value;
+            not_redeemed_unique_question_obj['quantity'] = document.getElementById('nr_quantity_' + loop_id).value;
+            // not_redeemed_unique_question_obj['evidence'] = document.getElementById('nr_evidence_' + loop_id).value;
+            not_redeemed_unique_question_obj['id'] = document.getElementById('not_redeemed_annexure_annexure_id_' + loop_id).value;
+            not_redeemed_unique_question.push(not_redeemed_unique_question_obj);
+        }
+
+        fetch("/edit_clinic_audit_not_redeemed/", {
+            method: "POST",
+            // body: fileData,
+            body: JSON.stringify({
+                'not_redeemed_check_list': not_redeemed_check_list,
+                'not_redeemed_annexure': not_redeemed_unique_question,
+                // 'filedata': fileData,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

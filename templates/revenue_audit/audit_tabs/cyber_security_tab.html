@@ -1,0 +1,284 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for cyber in all_cyber_security_checklist %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{cyber.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{cyber.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_cyber_security_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if cyber.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{service.relative_gap_found|default_if_none:''}}" id="gap_found_del_service_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="compliance_cyber_security_{{forloop.counter}}" value="{{cyber.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{cyber.id}}" id="cyber_security_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="m-2">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Action </button>
+                    <div class="dropdown-menu">
+                        <form action="" method="post"> 
+                            {% csrf_token %} 
+                            <Button class="dropdown-item" type="submit" name="create_one_cyber_security_annexure_row"> Add single row </Button>
+                        </form>
+                        <Button class="dropdown-item" data-toggle="modal" data-target="#add_cyber_security_annexure_row_modal"> Add Multiple row </Button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table user-table mb-0" id="cyber_security_annexure_table">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Area </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Sub Area </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Zenoti Login ID </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Used By </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Evidence </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Compliance </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 300px;"> Remark </th>
+                            <th scope="col" class="border-0 text-bold" style="min-width: 30px;"> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for cyber_security in all_cyber_security_annexure %} 
+                        <tr {% if observation.area and observation.sub_area %} style="background-color: rgb(231 231 244);" {% endif %}>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <select class="form-control" name="" id="cyber_security_area_{{forloop.counter}}">
+                                        <option value=""></option>
+                                        <option {% if cyber_security.area == 'Floor 1' %} selected {% endif %} value="Floor 1">Floor 1</option>
+                                        <option {% if cyber_security.area == 'Floor 2' %} selected {% endif %} value="Floor 2">Floor 2</option>
+                                        <option {% if cyber_security.area == 'Floor 3' %} selected {% endif %} value="Floor 3">Floor 3</option>
+                                        <option {% if cyber_security.area == 'Floor 4' %} selected {% endif %} value="Floor 4">Floor 4</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <select class="form-control" name="" id="cyber_security_sub_area_{{forloop.counter}}">
+                                        <option value=""></option>
+                                        <option {% if cyber_security.sub_area == 'Reception' %} selected {% endif %} value="Reception">Reception</option>
+                                        <option {% if cyber_security.sub_area == 'RAR' %} selected {% endif %} value="RAR">RAR</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <select class="form-control" name="" id="cyber_security_zenoti_login_id_{{forloop.counter}}">
+                                        <option value=""></option>
+                                        <option {% if cyber_security.zenoti_login_id == 'FD' %} selected {% endif %} value="FD">FD</option>
+                                        <option {% if cyber_security.zenoti_login_id == 'AE' %} selected {% endif %} value="AE">AE</option>
+                                        <option {% if cyber_security.zenoti_login_id == 'OM' %} selected {% endif %} value="OM">OM</option>
+                                        <option {% if cyber_security.zenoti_login_id == 'RAR' %} selected {% endif %} value="RAR">RAR</option>
+                                        <option {% if cyber_security.zenoti_login_id == 'SAR' %} selected {% endif %} value="SAR">SAR</option>
+                                        <option {% if cyber_security.zenoti_login_id == 'HHR' %} selected {% endif %} value="HHR">HHR</option>
+                                        <option {% if cyber_security.zenoti_login_id == 'CI' %} selected {% endif %} value="CI">CI</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <select class="form-control" name="" id="cyber_security_used_by_{{forloop.counter}}">
+                                        <option value=""></option>
+                                        <option {% if cyber_security.used_by == 'FD' %} selected {% endif %} value="FD">FD</option>
+                                        <option {% if cyber_security.used_by == 'AE' %} selected {% endif %} value="AE">AE</option>
+                                        <option {% if cyber_security.used_by == 'OM' %} selected {% endif %} value="OM">OM</option>
+                                        <option {% if cyber_security.used_by == 'RAR' %} selected {% endif %} value="RAR">RAR</option>
+                                        <option {% if cyber_security.used_by == 'SAR' %} selected {% endif %} value="SAR">SAR</option>
+                                        <option {% if cyber_security.used_by == 'HHR' %} selected {% endif %} value="HHR">HHR</option>
+                                        <option {% if cyber_security.used_by == 'CI' %} selected {% endif %} value="CI">CI</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class=""> 
+                                    {% if cyber_security.evidence %} 
+                                    <a href="{{cyber_security.evidence.url}}">Evidence Link</a> <br> 
+                                    {% endif %} 
+                                    <input type="file" class="form-control" name="annexure_file" value="" id="cyber_security_evidence_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <select class="form-control" id="cyber_security_annexure_compliance_{{forloop.counter}}" onchange="get_cyber_security_compliance()">
+                                        <option value=""></option>
+                                        <option {% if cyber_security.compliance == 'Followed' %} selected {% endif %} value="Followed">Followed</option>
+                                        <option {% if cyber_security.compliance == 'Not Followed' %} selected {% endif %}  
+                                        value="Not Followed">Not Followed</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{cyber_security.remark|default_if_none:'' }}" id="cyber_security_remark_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <form action="" method="post"> 
+                                    {% csrf_token %} 
+                                    <input type="hidden" name="del_id" id="" value="{{cyber_security.id}}">
+                                    <button type="submit" name="cyber_security_annexure_del_row" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <input type="hidden" value="{{cyber_security.id}}" id="cyber_security_annexure_id_{{forloop.counter}}">
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_cyber_security_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<div class="modal fade" id="add_cyber_security_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> 
+                    {% csrf_token %} 
+                    <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="cyber_security_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function get_cyber_security_compliance() {
+        var cyber_annexure_table = document.getElementById('cyber_security_annexure_table');
+        var total_rows = cyber_annexure_table.tBodies[0].rows.length;
+        var total_sum = 0
+        for (var i = 0; i < total_rows; i++) {
+            var loop_id = i + 1;
+            var annexure_compliance = document.getElementById('cyber_security_annexure_compliance_' + loop_id).value;
+            if (annexure_compliance == 'Not Followed') {
+                total_sum += 1
+            }
+        }
+        if (total_sum == 0) {
+            document.getElementById('compliance_cyber_security_1').value = '';
+        } else {
+            document.getElementById('compliance_cyber_security_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_cyber_security_data() {
+        $('#cover-spin').show(0);
+        var cyber_check_list = [];
+        var cyber_unique_question = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_cyber_security_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_appointment_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_cyber_security_' + field_id).value;
+            data_obj['id'] = document.getElementById('cyber_security_id_' + field_id).value;
+            cyber_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        var cyber_annexure_table = document.getElementById('cyber_security_annexure_table');
+        var total_rows = cyber_annexure_table.tBodies[0].rows.length;
+        for (var i = 0; i < total_rows; i++) {
+            var loop_id = i + 1;
+            cyber_unique_question_obj = {}
+            cyber_unique_question_obj['area'] = document.getElementById('cyber_security_area_' + loop_id).value;
+            cyber_unique_question_obj['sub_area'] = document.getElementById('cyber_security_sub_area_' + loop_id).value;
+            cyber_unique_question_obj['zenoti_login'] = document.getElementById('cyber_security_zenoti_login_id_' + loop_id).value;
+            cyber_unique_question_obj['used_by'] = document.getElementById('cyber_security_used_by_' + loop_id).value;
+            cyber_unique_question_obj['compliance'] = document.getElementById('cyber_security_annexure_compliance_' + loop_id).value;
+            cyber_unique_question_obj['remark'] = document.getElementById('cyber_security_remark_' + loop_id).value;
+            cyber_unique_question_obj['id'] = document.getElementById('cyber_security_annexure_id_' + loop_id).value;
+            cyber_unique_question.push(cyber_unique_question_obj);
+        }
+
+        fetch("/edit_audit_cyber_security/", {
+            method: "POST",
+            body: JSON.stringify({
+                'cyber_check_list': cyber_check_list,
+                'cyber_annexure': cyber_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

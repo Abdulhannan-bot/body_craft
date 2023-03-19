@@ -1,0 +1,109 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block breadcrumb %} <h5 class="text-primary mb-0" style="font-weight: bold;">Error Log</h5> 
+{% endblock breadcrumb %} 
+{% block content %}
+<div>
+    <form method="get">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Search By User </label>
+                    <select class="form-control select2" name="select_user" id="" style="width: 100%;">
+                        <option value=""></option>
+                        {% for user in all_audit_user %}
+                        <option {% if select_user|add:'0' == user.id %} selected {% endif %} value="{{user.id}}">{{user.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Search by Date</label>
+                    <input class="form-control" type="date" name="search_date" id="" value="{{search_date}}">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Search by Page</label>
+                    <select class="form-control" name="select_page">
+                        <option value=""></option> 
+                        <option {% if select_page == 'roster' %} selected {% endif %} value="roster">Roster</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <br>
+                <div class="row pt-2">
+                    <button class="btn btn-success btn-sm mb-2" type="submit" style="font-size: 15px;">
+                        <i class="fas fa-search">&nbsp;</i> Search </button> &nbsp;&nbsp; <a href="{% url 'error_log_page' %}" class="btn btn-danger btn-sm mb-2" style="font-size: 15px;"> Reset Filter </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <!-- <div class="card-body">
+                <h5 class="card-title text-uppercase mb-0">Manage Users</h5>
+            </div> -->
+            <div class="table-responsive">
+                <table class="table no-wrap user-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="border-0 text-uppercase font-medium pl-4"> Action By </th>
+                            <th scope="col" class="border-0 text-uppercase font-medium"> Date </th>
+                            <th scope="col" class="border-0 text-uppercase font-medium"> Sentence </th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for error in all_error_log %} 
+                        <tr>
+                            <td>
+                                <span>{{error.employee.user.first_name|default_if_none:'' }} {{error.employee.user.last_name|default_if_none:'' }}</span>
+                            </td>
+                            <td>
+                                <span>{{error.date|default_if_none:'' }}</span>
+                            </td>
+                            <td>
+                                <span>
+                                    {{error.sentence|default_if_none:'' }}
+                                </span>
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div> 
+    {% if all_error_log.paginator.num_pages > 1%} <!-- Paginator -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not all_error_log.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="?page=1{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" tabindex="-1">FIRST</a>
+            </li>
+            <li class="page-item {% if not all_error_log.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="{% if all_error_log.has_previous %}?page={{ all_error_log.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %} " tabindex="-1">&laquo;</a>
+            </li> {% if all_error_log.number|add:'-4' > 1 %} <li class="page-item disabled">
+                <a class="page-link" href="?page={{ all_error_log.number|add:'-5' }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+            </li> {% endif %} {% for i in all_error_log.paginator.page_range %} {% if all_error_log.number == i %} <li class="active page-item current ">
+                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+            </li> {% elif i > all_error_log.number|add:'-5' and i < all_error_log.number|add:'5' %} <li class="page-item">
+                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                </li> {% endif %} {% endfor %} {% if all_error_log.paginator.num_pages > all_error_log.number|add:'4' %} <li class="page-item disabled">
+                    <a class="page-link" href="?page={{ all_error_log.number|add:'5' }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+                </li> {% endif %} <li class="page-item {% if not all_error_log.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_error_log.has_next %} ?page={{ all_error_log.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">&raquo;</a>
+                </li>
+                <li class="page-item {% if not all_error_log.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_error_log.has_next %} ?page={{ all_error_log.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">LAST</a>
+                </li>
+        </ul>
+    </nav> 
+    {% endif %}
+</div>
+{% endblock %}

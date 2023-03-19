@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block breadcrumb %} 
+<h5 class="text-primary mb-0" style="font-weight: bold;">Mystery Shopping</h5> 
+{% endblock breadcrumb %} 
+{% block content %}
+<div class="">
+    <form method="get">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Center</label>
+                    <select class="form-control select2" id="center_filter" name="select_center" multiple="multiple">
+                        <option value=""></option> 
+                        {% for center in all_center %} 
+                        <option {% if center.id|stringformat:'s' in selected_center_id %} selected {% endif %} value="{{center.id}}">
+                            {{center}}
+                        </option> 
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Month of Audit</label>
+                    <!-- <label for="">Search with Date</label> -->
+                    <select class="form-control" name="select_month">
+                        <option value=""></option> 
+                        {% for month in all_months %} 
+                        <option {% if searched_month|add:'0' == month.id %} selected {% endif %} value="{{month.id}}">{{month.month}}</option> 
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col" style="display: none;">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="searched_text" placeholder="search here" 
+                    {% if searched_text %} value="{{searched_text}}" {% endif %}>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Compliance</label>
+                    <select name="searched_compliance" id="compliance_filter" class="form-control select2" multiple="multiple">
+                        <option value=""> </option> 
+                        <option {% if 'RNR' in searched_compliance %} selected {% endif %} value="RNR">RNR</option>
+                        <option {% if 'Benchmark KRA' in searched_compliance %} selected {% endif %} value="Benchmark KRA">Benchmark KRA</option>
+                        <option {% if 'CPI' in searched_compliance %} selected {% endif %} value="CPI">CPI</option>
+                        <option {% if 'PIP' in searched_compliance %} selected {% endif %} value="PIP">PIP</option>
+                        <option {% if 'Education' in searched_compliance %} selected {% endif %} value="Education">Education</option>
+                        <option {% if 'NA' in searched_compliance %} selected {% endif %} value="NA">NA</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">KRA</label>
+                    <select name="searched_kra" id="kra_filter_select" class="form-control">
+                        <option value=""></option>
+                        {% for kra in unique_kra_filed %}
+                        <option {% if searched_kra == kra %} selected {% endif %} value="{{kra}}">{{kra}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Audit Status</label>
+                    <select class="form-control" name="select_audit_status">
+                        <option value="">All</option>
+                        <option {% if select_audit_status == 'Completed' %} selected {% endif %} value="Completed">Completed</option>
+                        <option {% if select_audit_status == 'Action Required' %} selected {% endif %} value="Action Required">Action Required</option>
+                        <option {% if select_audit_status == 'Action Taken' %} selected {% endif %} value="Action Taken">Action Taken</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">OM Status</label>
+                    <select name="searched_om" id="" class="form-control">
+                        <option value=""> </option>
+                        <option {% if searched_om == 'Open' %} selected {% endif %} value="Open">Open</option>
+                        <option {% if searched_om == 'Closed' %} selected {% endif %} value="Closed">Closed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Dept. Status</label>
+                    <select name="searched_dept" id="" class="form-control">
+                        <option value=""></option>
+                        <option {% if searched_dept == 'Open' %} selected {% endif %} value="Open">Open</option>
+                        <option {% if searched_dept == 'Closed' %} selected {% endif %} value="Closed">Closed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <br>
+                <div class="row pt-2">
+                    <!-- <label for="">hello</label> -->
+                    <button class="btn btn-success btn-sm mb-2" type="submit" style="font-size: 15px;">
+                        <i class="fas fa-search">&nbsp;</i></button> &nbsp;&nbsp; 
+                        <a href="{% url 'mystery_shopping' %}" class="btn btn-danger btn-sm mb-2" style="font-size: 15px;">
+                            <i class="fas fa-window-close"></i> </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div> 
+<div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        {% if is_audit_admin or staffProfile.user_type == 'admin' or is_mystery_shopper %}
+        <li class="nav-item">
+            <a class="nav-link active " id="tag-mysteryoverview_tab" data-toggle="tab" href="#mysteryoverview_tab" role="tab" aria-controls="home" aria-selected="true" onclick="return saveTabSelect(this)">Lists</a>
+        </li>
+        {% endif %}
+        {% if is_audit_admin or staffProfile.user_type == 'admin' or is_mystery_shopper %}
+        <li class="nav-item">
+            <a class="nav-link {% if staffProfile.user_type == 'staff' %} active {% endif %}" id="tag-mysterydetail_tab" data-toggle="tab" href="#mysterydetail_tab" role="tab" aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">ATR</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-mysteryimage_tab" data-toggle="tab" href="#mysteryimage_tab" role="tab" aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">Files</a>
+        </li>
+        {% endif %}
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        {% if is_audit_admin or staffProfile.user_type == 'admin' or is_mystery_shopper %}
+        <div class="tab-pane fade show active" id="mysteryoverview_tab" role="tabpanel" aria-labelledby="home-tab"> 
+            {% include 'mystery_shopping/mystery_shopping_tabs/mystery_overview_tab.html' %} 
+        </div>
+        {% endif %}
+        <div class="tab-pane fade {% if staffProfile.user_type == 'staff' %} show active {% endif %}" id="mysterydetail_tab" role="tabpanel" aria-labelledby="profile-tab"> 
+            {% include 'mystery_shopping/mystery_shopping_tabs/mystery_detail_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="mysteryimage_tab" role="tabpanel" aria-labelledby="profile-tab"> 
+            {% include 'mystery_shopping/mystery_shopping_tabs/mystery_image_list.html' %} 
+        </div>
+    </div>
+</div>
+<!-- On Reload stay at previous tab -->
+<script>
+    $(document).ready(function () {
+        $('#compliance_filter').select2({
+            dropdownAutoWidth: true,
+            multiple: true,
+            width: '100%',
+            height: '30px',
+            placeholder: "Select",
+            allowClear: true,
+            // dropdownParent: $('#extra_data_div')
+        });
+    });
+
+    $(document).ready(function () {
+            $('#center_filter').select2({
+                dropdownAutoWidth: true,
+                multiple: true,
+                width: '100%',
+                height: '30px',
+                placeholder: "Select",
+                allowClear: true,
+                // dropdownParent: $('#extra_data_div')
+            });
+        });
+    // const client_id = "{{client.id}}";
+
+    // function redirectToDataUploader() {
+    //     $('cover-spin').show();
+    //     window.location.href = `/data-uploader/?client=${client_id}`
+    // }
+
+
+    // TODO add to session
+    function saveTabSelect(item) {
+        // var selectedTag = JSON.parse(sessionStorage.getItem('client_tag')) || null;
+        // sessionStorage.setItem('client_tag', JSON.stringify(storedProductList));
+        // var selectedTag = sessionStorage.getItem('client_tag') || null;
+        // sessionStorage.setItem('client_tag', storedProductList);
+        var prevSelectedTag = localStorage.getItem("curr_mysteryoverview_tag");
+        // console.log(`prevSelectedTag: `, prevSelectedTag);
+        if (item.id == prevSelectedTag) {
+            return;
+        }
+        if (prevSelectedTag) {
+            var element = document.getElementById(prevSelectedTag);
+            element.classList.remove("active");
+
+            var tabPaneId = `${prevSelectedTag.split("-")[1]}`;
+            // console.log(`tabPanId: `, tabPanId);
+            var tabePaneElement = document.getElementById(tabPaneId);
+            tabePaneElement.classList.remove('active');
+        }
+        localStorage.setItem("curr_mysteryoverview_tag", item.id);
+        // console.log(`cur tag id: `, item.id)
+        return true;
+    }
+
+    function retrieveSelected() {
+        var curTag = localStorage.getItem("curr_mysteryoverview_tag");
+        // console.log(`curTag: `, curTag);
+        if (curTag) {
+            var curElement = document.getElementById(`${curTag}`);
+            if (curElement) {
+                // revome active from first pill and tab in case there's any prev tag in local storage
+                var dataTag = document.getElementById('tag-mysteryoverview_tab');
+                dataTag.classList.remove("active");
+                var dataTabPaneElement = document.getElementById('mysteryoverview_tab');
+                dataTabPaneElement.classList.remove('active');
+
+                // Add active to tab
+                curElement.classList.add("active");
+                var curPaneId = `${curTag.split('-')[1]}`;
+                var curPaneElement = document.getElementById(curPaneId);
+                curPaneElement.classList.add('show');
+                curPaneElement.classList.add('active');
+
+                // const tab = $(curElement).data('tab_selected');
+                // window.location.href = `/clients/${client_id}/?tab=${tab}`;
+            } else {
+                // Else set in local storage the current active tab
+                localStorage.setItem("curr_mysteryoverview_tag", 'tag-mysteryoverview_tab');
+            }
+
+        } else {
+            // Else set in local storage the current active tab
+            localStorage.setItem("curr_mysteryoverview_tag", 'tag-mysteryoverview_tab');
+        }
+    }
+    retrieveSelected();
+
+</script> 
+{% endblock %}

@@ -1,0 +1,374 @@
+{% load mathfilters %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for pettycash in all_petty_cash_checklist %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{pettycash.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                {{pettycash.responsible_kra}}
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_pettycash_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if pettycash.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{service.relative_gap_found|default_if_none:''}}" id="gap_found_del_service_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="compliance_pettycash_{{forloop.counter}}" value="{{pettycash.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{pettycash.id}}" id="pettycash_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Date </th>
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Closing Balance as per Zenoti </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;">Cash in Hand </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Balance in Happy card </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;">Difference </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <td style="white-space: normal;">
+                                <input class="form-control" type="date" value="{{revenue_audit.petty_cash_date}}" id="petty_date_1">
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.closing_balance_as_per_zenoti}}" id="closing_balance_1" onchange="get_pettycash_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.cash_in_hand}}" id="cash_in_hand_1" onchange="get_pettycash_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span>
+                                    <input class="form-control" type="number" value="{{revenue_audit.balance_in_happy_card|default_if_none:''}}" id="balance_in_happy_card_1" onchange="get_pettycash_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span>
+                                    <input class="form-control" readonly type="text" id="pettycash_difference_1"
+                                    value="{{ revenue_audit.closing_balance_as_per_zenoti|sub:revenue_audit.cash_in_hand|sub:revenue_audit.balance_in_happy_card }}">
+                                </span>
+                            </td>
+                            <td>
+                                <span>
+                                    <input class="form-control" type="text" value="{{revenue_audit.petty_cash_remark|default_if_none:''}}" id="pettycash_remark_1">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{revenue_audit.id}}" id="pettycash_revenue_audit_id_1">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Physical vouchers available </th>
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Audit Sample size </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;">No. of vouchers updated on Zenoti </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Difference </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <td style="white-space: normal;">
+                                <input class="form-control" type="number" value="{{revenue_audit.physical_voucher_available}}" id="pettycash_physical_voucher_1" onchange="get_pettycash_difference()">
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.audit_sample_size}}" id="pettycash_audit_sample_size_1" onchange="get_pettycash_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.no_of_voucher_updated_on_zenoti}}" id="pettycash_voucher_updated_1" onchange="get_pettycash_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span>
+                                    <input class="form-control" readonly type="number" id="pettycash_difference_2"
+                                    value="{{ revenue_audit.audit_sample_size|sub:revenue_audit.no_of_voucher_updated_on_zenoti }}">
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="m-2">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Action </button>
+                    <div class="dropdown-menu">
+                        <form action="" method="post"> {% csrf_token %} <Button class="dropdown-item" type="submit" name="create_one_pettycash_annexure_row"> Add single row </Button>
+                        </form>
+                        <Button class="dropdown-item" data-toggle="modal" data-target="#add_pettycash_annexure_row_modal"> Add Multiple row</Button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table user-table mb-0" id="pettycash_annexure_table">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Voucher No. </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> OM signature available </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Reflecting in Zenoti </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Supporting Document </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Authenticity </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 250px; "> Remark </th>
+                            <th scope="col" class="border-0 text-bold" style="min-width: 30px;"> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for pettycash_annexure in all_petty_cash_annexure %} 
+                        <tr {% if pettycash_annexure.voucher_number and pettycash_annexure.reflecting_in_zenoti %} style="background-color: rgb(231 231 244);" {% endif %}>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <input class="form-control" type="text" value="{{pettycash_annexure.voucher_number|default_if_none:''}}" id="pettycash_voucher_number_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <select class="form-control" id="pettycash_om_signature_{{forloop.counter}}" onchange="get_pettycash_difference()">
+                                        <option value=""></option>
+                                        <option {% if pettycash_annexure.om_signature_available == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                        <option {% if pettycash_annexure.om_signature_available == 'No' %} selected {% endif %} value="No">No</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <select class="form-control" id="pettycash_reflecting_{{forloop.counter}}" onchange="get_pettycash_difference()">
+                                        <option value=""></option>
+                                        <option {% if pettycash_annexure.reflecting_in_zenoti == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                        <option {% if pettycash_annexure.reflecting_in_zenoti == 'No' %} selected {% endif %} value="No">No</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <select class="form-control" id="pettycash_supporting_document_{{forloop.counter}}" onchange="get_pettycash_difference()">
+                                        <option value=""></option>
+                                        <option {% if pettycash_annexure.supporting_document == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                        <option {% if pettycash_annexure.supporting_document == 'No' %} selected {% endif %} value="No">No</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <select class="form-control" id="pettycash_authenticity_{{forloop.counter}}" onchange="get_pettycash_difference()">
+                                        <option value=""></option>
+                                        <option {% if pettycash_annexure.authenticity == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                        <option {% if pettycash_annexure.authenticity == 'No' %} selected {% endif %} value="No">No</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input class="form-control" type="text" value="{{pettycash_annexure.remark|default_if_none:''}}" id="pettycash_ramark_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <form action="" method="post"> 
+                                    {% csrf_token %} 
+                                    <input type="hidden" name="del_id" id="" value="{{pettycash_annexure.id}}">
+                                    <button type="submit" name="pettycash_annexure_del_row" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <input type="hidden" value="{{pettycash_annexure.id}}" id="pettycash_annexure_id_{{forloop.counter}}">
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_pettycash_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<div class="modal fade" id="add_pettycash_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> 
+                    {% csrf_token %} 
+                    <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="pettycash_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function get_pettycash_difference() {
+        var closing_balance = document.getElementById('closing_balance_1').value;
+        var cash_in_hand = document.getElementById('cash_in_hand_1').value;
+        var happy_card = document.getElementById('balance_in_happy_card_1').value;
+        var difference_1 = document.getElementById('pettycash_difference_1').value= closing_balance - cash_in_hand - happy_card;
+
+        var voucher_updated = document.getElementById('pettycash_voucher_updated_1').value;
+        var audit_sample_size = document.getElementById('pettycash_audit_sample_size_1').value;
+        var difference_2 = document.getElementById('pettycash_difference_2').value = audit_sample_size - voucher_updated;
+        var pettycash_annexure_table = document.getElementById('pettycash_annexure_table');
+        var total_rows = pettycash_annexure_table.tBodies[0].rows.length;
+        var total_nos = 0
+        for(var i=0; i<total_rows; i++){
+            var loop_id = i+1;
+            var om_signature= document.getElementById('pettycash_om_signature_' + loop_id).value;
+            var reflecting= document.getElementById('pettycash_reflecting_' + loop_id).value;
+            var supporting_document  = document.getElementById('pettycash_supporting_document_' + loop_id).value;
+            var authenticity = document.getElementById('pettycash_authenticity_' + loop_id).value;
+            if(om_signature == 'Yes' && reflecting == 'Yes' && supporting_document == 'Yes' && authenticity == 'Yes'){
+                total_nos += 0;
+            }else{
+                total_nos += 1;
+            }
+        }
+        if (difference_1 == 0 && difference_2 == 0 && total_nos == 0) {
+            document.getElementById('compliance_pettycash_1').value = 'Followed';
+        } else {
+            document.getElementById('compliance_pettycash_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_pettycash_data() {
+        $('#cover-spin').show(0);
+        var pettycash_check_list = [];
+        var pettycash_unique_question = [];
+        var pettycash_annexure_list = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_pettycash_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_appointment_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_pettycash_' + field_id).value;
+            data_obj['id'] = document.getElementById('pettycash_id_' + field_id).value;
+            pettycash_check_list.push(data_obj);
+        }
+
+        var pettycash_unique_question_obj = {}
+        pettycash_unique_question_obj['date'] = document.getElementById('petty_date_1').value;
+        pettycash_unique_question_obj['closing_balance'] = document.getElementById('closing_balance_1').value;
+        pettycash_unique_question_obj['cash'] = document.getElementById('cash_in_hand_1').value;
+        pettycash_unique_question_obj['happy_card'] = document.getElementById('balance_in_happy_card_1').value;
+        pettycash_unique_question_obj['remark'] = document.getElementById('pettycash_remark_1').value;
+        pettycash_unique_question_obj['physical_voucher'] = document.getElementById('pettycash_physical_voucher_1').value;
+        pettycash_unique_question_obj['sample_size'] = document.getElementById('pettycash_audit_sample_size_1').value;
+        pettycash_unique_question_obj['voucher_updated'] = document.getElementById('pettycash_voucher_updated_1').value;
+        pettycash_unique_question_obj['id'] = document.getElementById('pettycash_revenue_audit_id_1').value;
+        pettycash_unique_question.push(pettycash_unique_question_obj);
+        // console.log(rectification_bill_unique_question)
+        // console.log(hygiene_check_list)
+        var pettycash_annexure_table = document.getElementById('pettycash_annexure_table');
+        var total_rows = pettycash_annexure_table.tBodies[0].rows.length;
+        for (var i = 0; i < total_rows; i++) {
+            var loop_id = i + 1;
+            var pettycash_annexure_obj = {}
+            pettycash_annexure_obj['voucher_number'] = document.getElementById('pettycash_voucher_number_' + loop_id).value;
+            pettycash_annexure_obj['om_signature'] = document.getElementById('pettycash_om_signature_' + loop_id).value;
+            pettycash_annexure_obj['reflecting'] = document.getElementById('pettycash_reflecting_' + loop_id).value;
+            pettycash_annexure_obj['supporting_document'] = document.getElementById('pettycash_supporting_document_' + loop_id).value;
+            pettycash_annexure_obj['authenticity'] = document.getElementById('pettycash_authenticity_' + loop_id).value;
+            pettycash_annexure_obj['remark'] = document.getElementById('pettycash_ramark_' + loop_id).value;
+            pettycash_annexure_obj['id'] = document.getElementById('pettycash_annexure_id_' + loop_id).value;
+            pettycash_annexure_list.push(pettycash_annexure_obj);
+        }
+
+        fetch("/edit_audit_pettycash/", {
+            method: "POST",
+            body: JSON.stringify({
+                'pettycash_check_list': pettycash_check_list,
+                'pettycash_unique_question': pettycash_unique_question,
+                'pettycash_annexure_list': pettycash_annexure_list,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

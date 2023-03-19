@@ -1,0 +1,136 @@
+<div class="">
+    <div class="row justify-content-end mr-2">
+        <button class="btn btn-warning text-white" data-toggle="modal" data-target="#add_img_modal"><i class="fas fa-plus"></i> Add New Image</button>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card p-2">
+                <!-- <div class="card-body">
+                    <h5 class="card-title text-uppercase mb-0">Manage Users</h5>
+                </div> -->
+                <div class="table-responsive">
+                    <table class="table no-wrap user-table mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="border-0 text-bold" style="width: 45%;"> Description </th>
+                                <th scope="col" class="border-0 text-bold" style="width: 45%;"> Image Preview </th>
+                                <th scope="col" class="border-0 text-bold" style="width: 10%;"> Action </th>
+                            </tr>
+                        </thead>
+                        <tbody> 
+                            {% for image in all_images_list %} 
+                            <tr>
+                                <td style="white-space: normal;">
+                                    <span class="text-muted">
+                                        {{image.description|default_if_none:'' }}<br>
+                                        {{image.image.name}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{image.image.url}}" target="_blank"> {% if '.png' in image.image.name or '.jpeg' in image.image.name or '.jpg' in image.image.name or '.gif' in image.image.name %} <img src="{{image.image.url}}" alt="" height="50" width="50"> {% endif %} </a>
+                                </td>
+                                <!-- <td style="white-space: normal;">
+                                    <span class="text-muted">
+                                        <img class="img-fluid img-thumbnail" src="{{image.image.url|default_if_none:'' }}" alt="" height="200", width="200" data-toggle="modal" data-target="#image_modal_{{image.id}}">
+                                    </span>
+                                </td> -->
+                                <td>
+                                    <a class="btn btn-info" href="{{image.image.url}}" download>
+                                        <i class="fas fa-download"></i></a> &nbsp;
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#delete_img_modal_{{image.id}}"><i class="fas fa-trash" ></i></button>
+                                </td>
+                            </tr>
+                            
+                            <!-- image modal  -->
+                            <!-- <div class="modal fade" id="image_modal_{{image.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title text-info" id="exampleModalLongTitle">
+                                                {{image.description|default_if_none:'' }}
+                                                <span>
+                                                    <a class="btn btn-danger btn-round" href="{{image.image.url}}" download>
+                                                        <i class="fas fa-download"></i></a>
+                                                </span>
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row justify-content-center">
+                                                <div style="height: 500px;">
+                                                    <img src="{{image.image.url}}" alt="" style="max-width: 100%; max-height: 100%;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
+
+                            <!-- image delete modal  -->
+                            <div class="modal fade" id="delete_img_modal_{{image.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title text-info" id="exampleModalLongTitle">Delete</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" action=""> 
+                                                {% csrf_token %} 
+                                                <div class="form-group mb-4" style="display: none;">
+                                                    <label class="mr-sm-2" for="inlineFormCustomSelect">Id</label>
+                                                    <input type="text" class="form-control" value="{{image.id}}" name="img_id" required>
+                                                </div>
+                                                <h3 class="text-center text-danger">Are You Sure You want To delete This Image?</h3>
+                                                <div class="d-flex justify-content-center">
+                                                    <button class="btn btn-danger" name="image_delete" type="submit">Delete</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %} 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- add image modal  -->
+<div class="modal fade" id="add_img_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="exampleModalLongTitle">Add New Admin </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="" id="" enctype="multipart/form-data"> 
+                    {% csrf_token %} 
+                    <div class="form-group mb-4">
+                        <label class="mr-sm-2" for="inlineFormCustomSelect">Description</label>
+                        <input type="text" class="form-control" name="desc" id="" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="mr-sm-2" for="inlineFormCustomSelect">Image</label>
+                        <input class="" type="file" id="img" name="selected_img">
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-success" name="image_submit" type="submit">Add</button>
+                    </div>
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div> -->
+        </div>
+    </div>
+</div>

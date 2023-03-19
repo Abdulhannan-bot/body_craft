@@ -1,0 +1,151 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block breadcrumb %} 
+<h5 class="text-primary mb-0" style="font-weight: bold;">Scheduler Report</h5> 
+{% endblock breadcrumb %} 
+{% block content %} 
+{% for message in messages %} 
+<p class="text-danger text-center" id="messages">{{message}}</p> 
+{% endfor %} 
+<div>
+    <form method="get">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Search From Center </label>
+                    <select class="form-control" name="select_center">
+                        <option value=""></option> 
+                        {% for center in all_center %} 
+                        <option {% if select_center|add:'0' == center.id %} selected {% endif %} value="{{center.id}}">
+                            {{center}}
+                        </option> 
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">Search From KRA</label>
+                    <select class="form-control" name="select_kra">
+                        <option value=""></option> 
+                        {% for kra in all_kra %} 
+                        <option {% if select_kra|add:'0' == kra.id %} selected {% endif %} value="{{kra.id}}">
+                            {{kra}}
+                        </option> 
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">From Date</label>
+                    <input class="form-control" {% if select_from_date %} value="{{select_from_date}}" {% endif %} type="date" name="select_from_date">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="text-muted" for="">To Date</label>
+                    <input class="form-control" {% if select_to_date %} value="{{select_to_date}}" {% endif %} type="date" name="select_to_date">
+                </div>
+            </div>
+            <div class="col">
+                <br>
+                <div class="row pt-2">
+                    <button class="btn btn-success btn-sm mb-2" type="submit" style="font-size: 15px;">
+                        <i class="fas fa-search">&nbsp;</i> Search </button> &nbsp;&nbsp; <a href="{% url 'scheduler_reports' %}" class="btn btn-danger btn-sm mb-2" style="font-size: 15px;"> Reset Filter </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row justify-content-end mr-2">
+    <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-info text-white" type="submit">
+            <i class="fas fa-download"></i> CSV </button>
+    </form>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <!-- <div class="card-body">
+                <h5 class="card-title text-uppercase mb-0">Manage Users</h5>
+            </div> -->
+            <div class="table-responsive">
+                <table class="table no-wrap user-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 5%;">#</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 15%;">Employee</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 15%;">Center</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 10%;">KRA</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 10%;">Status</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 15%;">Remark</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 10%;">Date</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 10%;">Start Time</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium" style="width: 10%;">End Time</th>
+                        </tr>
+                    </thead>
+                    <tbody> {% for scheduler in all_scheduler %} <tr>
+                            <td style="white-space: normal;">{{forloop.counter}}</td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">{{scheduler.employee.zenoti_data.employee_name}}</span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">{{scheduler.center}}</span>
+                            </td>
+                            <td style="white-space: normal;">
+                                {% for role in scheduler.employee.associated_role.all %}
+                                <span class="text-muted">{{role.name}}{% if not forloop.last %},{% endif %}</span>
+                                {% endfor %}
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">{{scheduler.status}}</span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">{{scheduler.remark|default_if_none:''}}</span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">{{scheduler.appoint_date}}</span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">{{scheduler.office_start_time}}</span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="text-muted">{{scheduler.office_end_time}}</span>
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div> {% if all_scheduler.paginator.num_pages > 1%} <!-- Paginator -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not all_scheduler.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="?page=1{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" tabindex="-1">FIRST</a>
+            </li>
+            <li class="page-item {% if not all_scheduler.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="{% if all_scheduler.has_previous %}?page={{ all_scheduler.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %} " tabindex="-1">&laquo;</a>
+            </li> {% if all_scheduler.number|add:'-4' > 1 %} <li class="page-item disabled">
+                <a class="page-link" href="?page={{ all_scheduler.number|add:'-5' }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+            </li> {% endif %} {% for i in all_scheduler.paginator.page_range %} {% if all_scheduler.number == i %} <li class="active page-item current ">
+                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+            </li> {% elif i > all_scheduler.number|add:'-5' and i < all_scheduler.number|add:'5' %} <li class="page-item">
+                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                </li> {% endif %} {% endfor %} {% if all_scheduler.paginator.num_pages > all_scheduler.number|add:'4' %} <li class="page-item disabled">
+                    <a class="page-link" href="?page={{ all_scheduler.number|add:'5' }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+                </li> {% endif %} <li class="page-item {% if not all_scheduler.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_scheduler.has_next %} ?page={{ all_scheduler.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">&raquo;</a>
+                </li>
+                <li class="page-item {% if not all_scheduler.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_scheduler.has_next %} ?page={{ all_scheduler.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">LAST</a>
+                </li>
+        </ul>
+    </nav> 
+    {% endif %}
+</div> 
+{% endblock %}

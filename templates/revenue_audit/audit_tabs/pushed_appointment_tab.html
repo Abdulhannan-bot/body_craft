@@ -1,0 +1,212 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for appointment in all_pushed_appointment %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{appointment.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{appointment.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_appointment_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if appointment.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{appointment.relative_gap_found|default_if_none:''}}" id="gap_found_appointment_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="compliance_appointment_{{forloop.counter}}" 
+                                    value="{{appointment.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{appointment.id}}" id="appointment_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Audit Period </th>
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> No. of appointments pushed as per Zenoti </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 50%;"> Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <td>
+                                <span class="">
+                                    <!-- FY 2022-23 -->
+                                    <input class="form-control" type="text" value="{{revenue_audit.pushed_appointment_audit_period_row_one|default_if_none:''}}" id="appointment_audit_period_1">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="number" class="form-control" value="{{revenue_audit.no_of_appointment_as_per_zenoti_row_one}}" id="no_of_appointment_zenoti_1" onchange="get_appointment_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" id="appointment_remark_1" value="{{revenue_audit.pushed_appointment_remark_row_one|default_if_none:''}}">
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{revenue_audit.pushed_appointment_audit_period_row_two|default_if_none:''}}" id="appointment_audit_period_2">
+                                    <!-- Current Date -->
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="number" class="form-control" value="{{revenue_audit.no_of_appointment_as_per_zenoti_row_two}}" id="no_of_appointment_zenoti_2" onchange="get_appointment_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" id="appointment_remark_2" value="{{revenue_audit.pushed_appointment_remark_row_two|default_if_none:''}}">
+                                </span>
+                            </td>
+                        </tr>
+                        <input type="hidden" value="{{revenue_audit.id}}" id="appointment_revenue_audit_id">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_pushed_appointment_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<!-- <div class="modal fade" id="add_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="hygiene_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+<script>
+
+    function get_appointment_difference() {
+        var no_of_appointment_1 = document.getElementById('no_of_appointment_zenoti_1').value;
+        var no_of_appointment_2 = document.getElementById('no_of_appointment_zenoti_2').value;
+        if(no_of_appointment_1 && no_of_appointment_2){
+            if (no_of_appointment_1 == 0 && no_of_appointment_2 == 0) {
+                document.getElementById('compliance_appointment_1').value = 'Followed';
+            } else {
+                document.getElementById('compliance_appointment_1').value = 'Not Followed';
+            }
+        } else {
+            document.getElementById('compliance_appointment_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_pushed_appointment_data() {
+        $('#cover-spin').show(0);
+        var pushappointment_check_list = [];
+        var pushappointment_unique_question = [];
+        console.log('here')
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_appointment_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_appointment_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_appointment_' + field_id).value;
+            data_obj['id'] = document.getElementById('appointment_id_' + field_id).value;
+            pushappointment_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        console.log(document.getElementById('appointment_audit_period_1').value)
+        pushedappointment_unique_question_obj = {}
+        pushedappointment_unique_question_obj['audit_period_1'] = document.getElementById('appointment_audit_period_1').value;
+        pushedappointment_unique_question_obj['no_of_appointment_1'] = document.getElementById('no_of_appointment_zenoti_1').value;
+        pushedappointment_unique_question_obj['remark_1'] = document.getElementById('appointment_remark_1').value;
+        pushedappointment_unique_question_obj['audit_period_2'] = document.getElementById('appointment_audit_period_2').value;
+        pushedappointment_unique_question_obj['no_of_appointment_2'] = document.getElementById('no_of_appointment_zenoti_2').value;
+        pushedappointment_unique_question_obj['remark_2'] = document.getElementById('appointment_remark_2').value;
+        pushedappointment_unique_question_obj['id'] = document.getElementById('appointment_revenue_audit_id').value;
+        pushappointment_unique_question.push(pushedappointment_unique_question_obj)
+
+        fetch("/edit_audit_pushedappointment/", {
+            method: "POST",
+            body: JSON.stringify({
+                'pushappointment_check_list': pushappointment_check_list,
+                'pushappointment_unique_question': pushappointment_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

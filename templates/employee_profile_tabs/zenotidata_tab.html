@@ -1,0 +1,37 @@
+{% load static %}
+<div class="p-4">
+    <div>
+        <h2><span class="badge badge-secondary">{{employee_detail.employee_name}}'s data from Zenoti</span></h2>
+        <br>
+        <div class="row">
+            <div class="col">
+                <div class="row">
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Employee Id</strong>
+                        <br>
+                        <p class="text-muted">{{employee_detail.employee_id}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Employee Name</strong>
+                        <br>
+                        <p class="text-muted">{{employee_detail.employee_name}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>User Id</strong>
+                        <br>
+                        <p class="text-muted">{{employee_detail.user.user.username}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>User Code</strong>
+                        <br>
+                        <p class="text-muted">{{employee_detail.employee_code}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Gender</strong>
+                        <br>
+                        <p class="text-muted">{{employee_detail.gender}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Job Info</strong>
+                        <br>
+                        <p class="text-muted">{{employee_detail.job_info}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

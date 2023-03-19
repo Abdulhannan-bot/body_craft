@@ -1,0 +1,194 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for blockout in all_blackout_checklist %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{blockout.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{blockout.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_blockout_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if blockout.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{blockout.relative_gap_found|default_if_none:''}}" id="gap_found_blockout_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" readonly value="{{blockout.compliance|default_if_none:''}}" id="compliance_blockout_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{blockout.id}}" id="blockout_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 20%;"> Checklist </th> -->
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> No. of block outs with notes-Active </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> No. of block outs with notes-Deleted </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 50%;"> Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted"> Blockouts </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.no_of_blockout_notes_active}}" id="block_with_active_1" onchange="get_blockout_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="number" class="form-control" value="{{revenue_audit.no_of_blockout_notes_deleted}}" id="block_with_deleted_1" onchange="get_blockout_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="text" class="form-control" value="{{revenue_audit.blockout_remark|default_if_none:''}}" id="block_remark">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{revenue_audit.id}}" id="revenue_audit_id_1">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_blockout_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<!-- <div class="modal fade" id="add_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="hygiene_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+<script>
+
+    function get_blockout_difference() {
+        // ****if Both field is 0, it is Followed, else Not Followed
+        var notes_active_1 = document.getElementById('block_with_active_1').value;
+        var notes_deleted_1 = document.getElementById('block_with_deleted_1').value;
+        if(notes_active_1 && notes_deleted_1){
+            if (notes_active_1 == 0 && notes_deleted_1 == 0) {
+                document.getElementById('compliance_blockout_1').value = 'Followed';
+            } else {
+                document.getElementById('compliance_blockout_1').value = 'Not Followed';
+            }
+        } else {
+            document.getElementById('compliance_blockout_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_blockout_data() {
+        $('#cover-spin').show(0);
+        var blockout_check_list = [];
+        var blockout_unique_question = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_blockout_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_blockout_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_blockout_' + field_id).value;
+            data_obj['id'] = document.getElementById('blockout_id_' + field_id).value;
+            blockout_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        blockout_unique_question_obj = {}
+        blockout_unique_question_obj['no_of_active'] = document.getElementById('block_with_active_1').value;
+        blockout_unique_question_obj['no_of_deleted'] = document.getElementById('block_with_deleted_1').value;
+        blockout_unique_question_obj['remark'] = document.getElementById('block_remark').value;
+        blockout_unique_question_obj['id'] = document.getElementById('revenue_audit_id_1').value;
+        blockout_unique_question.push(blockout_unique_question_obj)
+
+        fetch("/edit_audit_blockout/", {
+            method: "POST",
+            body: JSON.stringify({
+                'blockout_check_list': blockout_check_list,
+                'blockout_unique_question': blockout_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block breadcrumb %} <h5 class="text-primary mb-0" style="font-weight: bold;">Staffs</h5> {% endblock breadcrumb %}
+
+{% block content %}
+{% for message in messages %}
+<p class="text-danger text-center" id="messages">{{message}}</p>
+{% endfor %}
+<div>
+    <form method="get">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <select class="form-control" name="select_center">
+                        <option value="">Search from Center</option>
+                        {% for center in all_centers %}
+                        <option {% if selected_center|add:'0' == center.id %} selected {% endif %} value="{{center.id}}">{{center}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <select class="form-control" name="select_jobtitle">
+                        <option value="">Search from Job Title</option>
+                        {% for job in all_jobtitle %}
+                        <option {% if selected_jobtitle == job %} selected {% endif %} value="{{job}}">{{job}}</option>
+                        {% endfor %}
+                        
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="searched_text" placeholder="search here" {% if searched_text %} value="{{searched_text}}" {% endif %}>
+                </div>
+            </div>
+            <div class="col">
+                <div class="row">
+                    <button class="btn btn-success btn-sm mb-2" type="submit" style="font-size: 15px;">
+                        <i class="fas fa-search">&nbsp;</i>
+                        Search
+                    </button>
+                    &nbsp;&nbsp;
+                    <a href="{% url 'staffs_list' %}" class="btn btn-danger btn-sm mb-2"
+                        style="font-size: 15px;">
+                        Reset Filter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row justify-content-end">
+    <div class="float-right">
+        <button class="btn btn-warning text-white" data-toggle="modal" data-target="#add_user_modal">
+            <i class="fas fa-plus"></i> Fetch Zenoti Users</button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <!-- <div class="card-body">
+                <h5 class="card-title text-uppercase mb-0">Manage Users</h5>
+            </div> -->
+            <div class="table-responsive">
+                <table class="table no-wrap user-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium">Name</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium">Code</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium">Zenoti Centers</th>
+                            <th scope="col" class="border-0 text-uppercase font-medium">Assigned Centers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for employee in employee_list %}
+                    <tr onclick="viewEmployeeDetail('{{employee.id}}')" style="cursor: pointer;">
+                        <td class="pl-4">{{forloop.counter}}</td>
+                        <td>
+                            <div class="d-flex align-items-start">
+                                {% if employee.gender == '0' %}
+                                <img src="{% static 'images/women.png' %}" class="rounded-circle" width="30">
+                                {% else %}
+                                <img src="{% static 'images/men.png' %}" class="rounded-circle" width="30">
+                                {% endif %}
+                                <div class="ml-2">
+                                    <h5 class="font-weight-medium mb-0">
+                                        {{employee.name}}
+                                    </h5>
+                                    <span class="text-muted">{{employee.username}}</span>
+                                </div>
+                            </div>
+                            <!-- <h5 class="font-medium mb-0">{{employee.name}}</h5>
+                            <span class="text-muted">{{employee.username}}</span> -->
+                        </td>
+                        <td>
+                            <span class="text-muted">{{employee.employee_code}}</span><br>
+                            <span class="text-muted">{{employee.job}}</span>
+                        </td>
+                        <td>
+                            <span class="text-muted" data-toggle="tooltip" title="{{employee.zenoti_center}}">{{employee.zenoti_center|striptags|truncatechars:50}}</span>
+                        </td>
+                        <td>
+                            <span class="text-muted" data-toggle="tooltip" title="{{employee.assigned_center}}">{{employee.assigned_center|striptags|truncatechars:50}}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- <div class="table-responsive">
+    <table class="table table-hover table-bordered" id="file_export">
+        <thead>
+            <tr>
+                <th>Employee Code</th>
+                <th>Employee Name</th>
+                <th>Zenoti Center</th>
+                <th>Assigned Center</th>
+                <th>Job Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employee in employee_list %}
+            <tr onclick="viewEmployeeDetail('{{employee.id}}')" style="cursor: pointer;">
+                <td>{{employee.employee_code}}</td>
+                <td>{{employee.name}}</td>
+                <td data-toggle="tooltip" title="{{employee.zenoti_center}}"> {{employee.zenoti_center|striptags|truncatechars:100}}</td>
+                <td data-toggle="tooltip" title="{{employee.assigned_center}}">{{employee.assigned_center|striptags|truncatechars:100}}</td>
+                <td>{{employee.job}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div> -->
+<div>
+    {% if employee_list.paginator.num_pages > 1%}
+    <!-- Paginator -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+    
+            <li class="page-item {% if not employee_list.has_previous %} disabled {% endif %}">
+                <a class="page-link" 
+                href="?page=1&select_center={{selected_center|default_if_none:'' }}&select_jobtitle={{selected_jobtitle|default_if_none:'' }}&searched_text={{searched_text|default_if_none:'' }}" tabindex="-1">FIRST</a>
+            </li>
+            <li class="page-item {% if not employee_list.has_previous %} disabled {% endif %}">
+                <a class="page-link"
+                    href="{% if employee_list.has_previous %}?page={{ employee_list.previous_page_number }}&select_center={{selected_center|default_if_none:'' }}&select_jobtitle={{selected_jobtitle|default_if_none:'' }}&searched_text={{searched_text|default_if_none:'' }}{% endif %} "
+                    tabindex="-1">&laquo;</a>
+            </li>
+    
+            {% if employee_list.number|add:'-4' > 1 %}
+            <li class="page-item disabled">
+                <a class="page-link" href="?page={{ employee_list.number|add:'-5' }}&select_center={{selected_center|default_if_none:'' }}&select_jobtitle={{selected_jobtitle|default_if_none:'' }}&searched_text={{searched_text|default_if_none:'' }}">&hellip;</a>
+            </li>
+            {% endif %}
+    
+            {% for i in employee_list.paginator.page_range %}
+            {% if employee_list.number == i %}
+            <li class="active page-item current ">
+                <a class="page-link" href="?page={{ i }}&select_center={{selected_center|default_if_none:'' }}&select_jobtitle={{selected_jobtitle|default_if_none:'' }}&searched_text={{searched_text|default_if_none:'' }}">{{ i }}</a>
+            </li>
+            {% elif i > employee_list.number|add:'-5' and i < employee_list.number|add:'5' %} <li
+                class="page-item">
+                <a class="page-link" href="?page={{ i }}&select_center={{selected_center|default_if_none:'' }}&select_jobtitle={{selected_jobtitle|default_if_none:'' }}&searched_text={{searched_text|default_if_none:'' }}">{{ i }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+    
+                {% if employee_list.paginator.num_pages > employee_list.number|add:'4' %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="?page={{ employee_list.number|add:'5' }}&select_center={{selected_center|default_if_none:'' }}&select_jobtitle={{selected_jobtitle|default_if_none:'' }}&searched_text={{searched_text|default_if_none:'' }}">&hellip;</a>
+                </li>
+                {% endif %}
+    
+                <li class="page-item {% if not employee_list.has_next %} disabled {% endif %}">
+                    <a class="page-link"
+                        href="{% if employee_list.has_next %} ?page={{ employee_list.next_page_number }}&select_center={{selected_center|default_if_none:'' }}&select_jobtitle={{selected_jobtitle|default_if_none:'' }}&searched_text={{searched_text|default_if_none:'' }} {% endif %}">&raquo;</a>
+                </li>
+                <li class="page-item {% if not employee_list.has_next %} disabled {% endif %}">
+                    <a class="page-link"
+                        href="{% if employee_list.has_next %} ?page={{ employee_list.paginator.num_pages }}&select_center={{selected_center|default_if_none:'' }}&select_jobtitle={{selected_jobtitle|default_if_none:'' }}&searched_text={{searched_text|default_if_none:'' }} {% endif %}">LAST</a>
+                </li>
+        </ul>
+    </nav>
+    
+    {% endif %}
+</div>
+
+<!-- get zenoti modal  -->
+<div class="modal fade" id="add_user_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="exampleModalLongTitle">Fetch Zenoti Users Data
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="" id="get_zenoti_user_data">
+                    {% csrf_token %}
+                    <h3 class="text-danger">Are you sure, You want to fetch new data from Zenoti ?</h3>
+                    <!-- <div class="form-group mb-4">
+                        <label class="mr-sm-2" for="inlineFormCustomSelect">Name</label>
+                        <input type="text" class="form-control" placeholder="name.." name="name" id="" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="mr-sm-2" for="inlineFormCustomSelect">phone</label>
+                        <input type="number" class="form-control" placeholder="" name="phone" id="" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="mr-sm-2" for="inlineFormCustomSelect">Email</label>
+                        <input type="text" class="form-control" placeholder="email" name="email" id="" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="mr-sm-2" for="inlineFormCustomSelect">Passcode</label>
+                        <input type="text" class="form-control" placeholder="password.." name="passcode" id="" required>
+                    </div> -->
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-success" type="submit" onclick="button_click(this, 'get_zenoti_user_data')">Yes</button>
+                    </div>
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+<script>
+    function viewEmployeeDetail(employee_id) {
+            window.location.href = `/body_craft_staff_profile/${employee_id}/`;
+            return false;
+        }
+</script>
+{% endblock %}

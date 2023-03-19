@@ -1,0 +1,156 @@
+ {% extends "base.html" %} 
+ {% load static %} 
+ {% load mystery_extras %} 
+ {% block breadcrumb %} 
+ <h5 class="text-primary mb-0" style="font-weight: bold;"><a class="text-primary mb-0" href="javascript:history.back()">Corporate Audit</a>
+    <i class="fas fa-angle-double-right"></i> Details
+</h5> 
+{% endblock breadcrumb %} 
+{% block content %} 
+{% for message in messages %} 
+<p class="text-danger text-center" id="messages">{{message}}</p> 
+{% endfor %} 
+<div class="row">
+    <!-- Column -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="d-flex flex-row">
+                <div class="p-2 bg-info">
+                    <h3 class="text-white box mb-0"><i class="ti-themify-favicon-alt"></i></h3>
+                </div>
+                <div class="p-2">
+                    <h3 class="text-info mb-0">{{corporate_audit.center}}</h3>
+                    <span class="text-muted">{{corporate_audit.date}},<br> {{corporate_audit.start_time}} to {{corporate_audit.end_time}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Column -->
+    <!-- Column -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="d-flex flex-row">
+                <div class="p-2 bg-success">
+                    <h3 class="text-white box mb-0"><i class="ti-signal"></i></h3>
+                </div>
+                <div class="p-2">
+                    <h3 class="text-success mb-0">{{corporate_audit.shopper_name}} ({{corporate_audit.gender}})</h3>
+                    <span class="text-muted"> {{corporate_audit.email}} <br> {{corporate_audit.mobile}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Column -->
+    <!-- Column -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="d-flex flex-row">
+                <div class="p-2 bg-inverse">
+                    <h3 class="text-white box mb-0"><i class="ti-timer"></i></h3>
+                </div>
+                <div class="p-2">
+                    <h3 class="mb-0">{{corporate_audit.invoice_number}}</h3>
+                    <span class="text-muted">Cost: {{corporate_audit.cost_of_service}} | Mode: {{corporate_audit.payment_mode}}</span> <br>
+                    <span>Cash: {{corporate_audit.paid_in_cash}} | Redeemed {{corporate_audit.amount_redeemed}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Column -->
+    <!-- Column -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="d-flex flex-row">
+                <div class="p-2 bg-cyan">
+                    <h3 class="text-white box mb-0"><i class="ti-server"></i></h3>
+                </div>
+                <div class="p-2">
+                    <span class="text-muted">Added By: {{corporate_audit.added_by}}</span>
+                    <br><br>
+                    <span class="text-muted">Added On: {{corporate_audit.added_on}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Column -->
+</div>
+<div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="tag-corporateprofile_tab" data-toggle="tab" href="#corporateprofile_tab" role="tab" aria-controls="home" aria-selected="true" onclick="return saveTabSelect(this)">Details</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="corporateprofile_tab" role="tabpanel" aria-labelledby="home-tab"> 
+            {% include 'corporate_audit/profile_tabs/profile_detail.html' %} </div>
+    </div>
+</div>
+<script>
+    // const client_id = "{{client.id}}";
+
+    // function redirectToDataUploader() {
+    //     $('cover-spin').show();
+    //     window.location.href = `/data-uploader/?client=${client_id}`
+    // }
+
+
+    // TODO add to session
+    function saveTabSelect(item) {
+        // var selectedTag = JSON.parse(sessionStorage.getItem('client_tag')) || null;
+        // sessionStorage.setItem('client_tag', JSON.stringify(storedProductList));
+        // var selectedTag = sessionStorage.getItem('client_tag') || null;
+        // sessionStorage.setItem('client_tag', storedProductList);
+        var prevSelectedTag = localStorage.getItem("curr_corporateprofile_tag");
+        // console.log(`prevSelectedTag: `, prevSelectedTag);
+        if (item.id == prevSelectedTag) {
+            return;
+        }
+        if (prevSelectedTag) {
+            var element = document.getElementById(prevSelectedTag);
+            element.classList.remove("active");
+
+            var tabPaneId = `${prevSelectedTag.split("-")[1]}`;
+            // console.log(`tabPanId: `, tabPanId);
+            var tabePaneElement = document.getElementById(tabPaneId);
+            tabePaneElement.classList.remove('active');
+        }
+        localStorage.setItem("curr_corporateprofile_tag", item.id);
+        // console.log(`cur tag id: `, item.id)
+        return true;
+    }
+
+    function retrieveSelected() {
+        var curTag = localStorage.getItem("curr_corporateprofile_tag");
+        // console.log(`curTag: `, curTag);
+        if (curTag) {
+            var curElement = document.getElementById(`${curTag}`);
+            if (curElement) {
+                // revome active from first pill and tab in case there's any prev tag in local storage
+                var dataTag = document.getElementById('tag-corporateprofile_tab');
+                dataTag.classList.remove("active");
+                var dataTabPaneElement = document.getElementById('corporateprofile_tab');
+                dataTabPaneElement.classList.remove('active');
+
+                // Add active to tab
+                curElement.classList.add("active");
+                var curPaneId = `${curTag.split('-')[1]}`;
+                var curPaneElement = document.getElementById(curPaneId);
+                curPaneElement.classList.add('show');
+                curPaneElement.classList.add('active');
+
+                // const tab = $(curElement).data('tab_selected');
+                // window.location.href = `/clients/${client_id}/?tab=${tab}`;
+            } else {
+                // Else set in local storage the current active tab
+                localStorage.setItem("curr_corporateprofile_tag", 'tag-corporateprofile_tab');
+            }
+
+        } else {
+            // Else set in local storage the current active tab
+            localStorage.setItem("curr_corporateprofile_tag", 'tag-corporateprofile_tab');
+        }
+    }
+    retrieveSelected();
+
+</script> 
+{% endblock %}

@@ -1,0 +1,197 @@
+<style>
+    .detail_table thead {
+        position: sticky;
+        top: 0;
+        /* background-color: rgb(151 112 112); */
+        z-index: 1;
+    }
+</style>
+<div class="row justify-content-end mr-2">
+    <br>
+    <div class="mr-2 p-2">
+        {{detail_start_index}} - {{detail_end_index}} of {{detail_total}}
+    </div>
+    <form action="" method="post"> {% csrf_token %} <input type="hidden" name="mystery_csv">
+        <button class="btn btn-success" type="" onclick="this.form.submit(); this.innerHTML = 'Downloading...';"><i class="fas fa-download"></i> CSV</button>
+    </form>
+</div>
+<div class="row justify-content-end mr-2">
+    <div class="btn-group">
+        <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Columns </button>
+        <div class="dropdown-menu">
+            <span class="dropdown-item"><input type="checkbox" id="column-1-checkbox"> <label>Center</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-2-checkbox"> <label>Detail</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-3-checkbox"> <label>Checklist</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-4-checkbox"> <label>User & Compliance</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-5-checkbox"> <label>Auditor Remarks</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-6-checkbox"> <label>Audit</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-7-checkbox"> <label>Action By Outlet Manager</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-8-checkbox"> <label>Action By Management</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-9-checkbox"> <label>Expected Dept/Personnel to Intervene</label></span>
+            <span class="dropdown-item"><input type="checkbox" id="column-10-checkbox"> <label>By Department</label></span>
+        </div>
+    </div>
+</div>
+<div class="row p-4">
+    <div class="table-responsive" style="height: 500px;">
+        <table class="table detail_table">
+            <thead style="background-color: white;">
+                <tr>
+                    <th style="min-width: 200px;"> Center </th>
+                    <th style="min-width: 200px;"> Detail </th>
+                    <th style="min-width: 200px;"> Checklist </th>
+                    <th style="min-width: 200px;">User & Compliance</th>
+                    <th style="min-width: 200px;"> Auditor Remarks </th>
+                    <th style="min-width: 200px;">Audit Status</th>
+                    <th style="min-width: 200px;">Comment for auditor</th>
+                    <th style="min-width: 200px;">Action taken By Outlet Manager</th>
+                    <th style="min-width: 200px;">Status by OM</th>
+                    <th style="min-width: 200px;">Remark by OM</th>
+                    <th style="min-width: 200px;">Action Taken By Management</th>
+                    <th style="min-width: 200px;">Remark By Management</th>
+                    <th style="min-width: 200px;">Expected Dept/Personnel to Intervene</th>
+                    <th style="min-width: 200px;">Remark By Department</th>
+                    <th style="min-width: 200px;">Status By Department</th>
+                    <!-- <th style="min-width: 100px;">Action</th> -->
+                </tr>
+            </thead>
+            <tbody> 
+                {% for mystery in all_mystery_detail %} 
+                <tr data-toggle="collapse" data-target="#details2_{{mystery.id}}" class="accordion-toggle">
+                    <td style="white-space: normal;">
+                        <span class="text-muted">
+                            {{mystery.center|default_if_none:'' }} <br>
+                            {{mystery.month_of_audit.month|default_if_none:'' }} {% if not staffProfile.user_type == 'staff' %} <br> BY: {{mystery.mystery_shopping.shopper_name|default_if_none:''}} {% endif %} </span>
+                    </td>
+                    <td style="white-space: normal;">
+                        <span class="text-muted">
+                            {{mystery.client_journey|default_if_none:'' }} - {{mystery.kra|default_if_none:'' }} <br>
+                            {{mystery.process|default_if_none:'' }} <br> {% if mystery.service_number == '1' %} {{mystery.service_availed_1|default_if_none:''}} {% elif mystery.service_number == '2' %} {{mystery.service_availed_2|default_if_none:''}} {% elif mystery.service_number == '3' %} {{mystery.service_availed_3|default_if_none:''}} {% else %} {{mystery.service_availed_1|default_if_none:''}} {% if mystery.service_availed_2 %} <br> {% endif %} {{mystery.service_availed_2|default_if_none:''}} {% if mystery.service_availed_3 %} <br> {% endif %} {{mystery.service_availed_3|default_if_none:''}} {% endif %} </span>
+                    </td>
+                    <td style="white-space: normal;">
+                        <span class="text-muted">
+                            <b>{{mystery.mystery_shopping.id}} - {{mystery.sequence}} </b> <br> {{mystery.checklist|default_if_none:'' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="text-muted">
+                            {{mystery.staff.zenoti_data.employee_name|default_if_none:''}}
+                        </span>
+                        <br> {% if mystery.compliance_category %} <h4>
+                            <span class=" badge {% if mystery.compliance_category_percentage == '100' %} badge-success {% elif mystery.compliance_category_percentage == '50' %} badge-warning {% elif mystery.compliance_category_percentage == '0' %} badge-danger {% else %} badge-primary {% endif %} ">
+                                {{mystery.compliance_category|default_if_none:'' }} {% endif %} - {% if mystery.compliance_category_percentage %} {{mystery.compliance_category_percentage|default_if_none:''}}% </span>
+                        </h4> {% endif %}
+                    </td>
+                    <td style="white-space: normal;">
+                        <span class="text-muted">
+                            {{mystery.remark|default_if_none:'' }}
+                        </span>
+                    </td>
+                    <td>
+                        <select class="form-control" name="audit_status" id="audit_status_2_{{mystery.id}}">
+                            <option {% if mystery.audit_status == 'Completed' %} selected {% endif %} value="Completed">Completed</option>
+                            <option {% if mystery.audit_status == 'Action Required' %} selected {% endif %} value="Action Required">Action Required</option>
+                            <option {% if mystery.audit_status == 'Action Taken' %} selected {% endif %} value="Action Taken">Action Taken</option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea class="form-control" id="comment_auditor_2_{{mystery.id}}" rows="3">{{mystery.comment_for_auditor|default_if_none:''}}</textarea>
+                    </td>
+                    <td>
+                        <select class="form-control" name="action_outlet" id="action_outlet_2_{{mystery.id}}">
+                            <option value="">Select</option>
+                            <option {% if mystery.action_taken_by_outlet_manager == 'Resource shortage' %} selected {% endif %} value="Resource shortage">Resource shortage</option>
+                            <option {% if mystery.action_taken_by_outlet_manager == 'Facility issue' %} selected {% endif %} value="Facility issue">Facility issue</option>
+                            <option {% if mystery.action_taken_by_outlet_manager == 'Verbal Warning' %} selected {% endif %} value="Verbal Warning">Verbal Warning</option>
+                            <option {% if mystery.action_taken_by_outlet_manager == 'Education' %} selected {% endif %} value="Education">Education</option>
+                            <option {% if mystery.action_taken_by_outlet_manager == 'PIP Connect' %} selected {% endif %} value="PIP Connect">PIP Connect</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control" name="status_om" id="status_om_2_{{mystery.id}}">
+                            <option value="">Select</option>
+                            <option {% if mystery.status_by_om == 'Open' %} selected {% endif %} value="Open">Open</option>
+                            <option {% if mystery.status_by_om == 'Closed' %} selected {% endif %} value="Closed">Closed</option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea class="form-control" name="remark_om" id="remark_om_2_{{mystery.id}}" rows="3">{{mystery.remark_by_om|default_if_none:''}}</textarea>
+                    </td>
+                    <td>
+                        <select class="form-control" name="action_management" id="action_management_2_{{mystery.id}}">
+                            <option value="">Select</option>
+                            <option {% if mystery.action_taken_by_management == 'Verbal Warning' %} selected {% endif %} value="Verbal Warning"> Verbal Warning </option>
+                            <option {% if mystery.action_taken_by_management == 'Warning Letter' %} selected {% endif %} value="Warning Letter"> Warning Letter </option>
+                            <option {% if mystery.action_taken_by_management == 'Process Improvement' %} selected {% endif %} value="Process Improvement">Process Improvement</option>
+                            <option {% if mystery.action_taken_by_management == 'Non compliance-Incentive deduction' %} selected {% endif %} value="Non compliance-Incentive deduction">Non compliance-Incentive deduction</option>
+                            <option {% if mystery.action_taken_by_management == 'PIP Connect' %} selected {% endif %} value="PIP Connect">PIP Connect</option>
+                            <option {% if mystery.action_taken_by_management == 'Education' %} selected {% endif %} value="Education">Education</option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea class="form-control" name="remark_management" id="remark_management_2_{{mystery.id}}" rows="3">{{mystery.remark_by_management|default_if_none:''}}</textarea>
+                    </td>
+                    <td>
+                        <select class="form-control" name="expected_intervene" id="expected_intervene_2_{{mystery.id}}">
+                            <option value="">Select</option>
+                            <option {% if mystery.expected_dept_intervene == 'OM' %} selected {% endif %} value="OM">OM</option>
+                            <option {% if mystery.expected_dept_intervene == 'POC' %} selected {% endif %} value="POC">POC</option>
+                            <option {% if mystery.expected_dept_intervene == 'TAM' %} selected {% endif %} value="TAM">TAM</option>
+                            <option {% if mystery.expected_dept_intervene == 'SLD-Salon' %} selected {% endif %} value="SLD-Salon">SLD-Salon</option>
+                            <option {% if mystery.expected_dept_intervene == 'SLD-Skin' %} selected {% endif %} value="SLD-Skin">SLD-Skin</option>
+                            <option {% if mystery.expected_dept_intervene == 'Management' %} selected {% endif %} value="Management">Management</option>
+                            <option {% if mystery.expected_dept_intervene == 'Procurement' %} selected {% endif %} value="Procurement">Procurement</option>
+                            <option {% if mystery.expected_dept_intervene == 'Facility Management' %} selected {% endif %} value="Facility Management">Facility Management</option>
+                            <option {% if mystery.expected_dept_intervene == 'Marketing' %} selected {% endif %} value="Marketing">Marketing</option>
+                            <option {% if mystery.expected_dept_intervene == 'Finance & Accounts' %} selected {% endif %} value="Finance & Accounts">Finance & Accounts</option>
+                            <option {% if mystery.expected_dept_intervene == 'CRM' %} selected {% endif %} value="CRM"> CRM</option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea class="form-control" name="remark_department" id="remark_department_2_{{mystery.id}}" rows="3">{{mystery.remark_by_department|default_if_none:''}}</textarea>
+                    </td>
+                    <td>
+                        <select class="form-control" name="status_department" id="status_department_2_{{mystery.id}}">
+                            <option value="">Select</option>
+                            <option {% if mystery.status_by_department == 'Open' %} selected {% endif %} value="Open">Open</option>
+                            <option {% if mystery.status_by_department == 'Closed' %} selected {% endif %} value="Closed">Closed</option>
+                        </select>
+                    </td>
+                    <!-- <td> 
+                        <div class="d-flex justify-content-center mt-2">
+                            <button class="btn btn-success" id="btn_2_{{mystery.id}}" type="button">Update</button>
+                        </div>
+                    </td> -->
+                </tr> 
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div> 
+    {% if all_mystery_detail.paginator.num_pages > 1%} <!-- Paginator -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not all_mystery_detail.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="?page_2=1{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" tabindex="-1">FIRST</a>
+            </li>
+            <li class="page-item {% if not all_mystery_detail.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="{% if all_mystery_detail.has_previous %}?page_2={{ all_mystery_detail.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %} " tabindex="-1"> &laquo;</a>
+            </li> {% if all_mystery_detail.number|add:'-4' > 1 %} <li class="page-item disabled">
+                <a class="page-link" href="?page_2={{ all_mystery_detail.number|add:'-5' }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+            </li> {% endif %} {% for i in all_mystery_detail.paginator.page_range %} {% if all_mystery_detail.number == i %} <li class="active page-item current ">
+                <a class="page-link" href="?page_2={{ i }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+            </li> {% elif i > all_mystery_detail.number|add:'-5' and i < all_mystery_detail.number|add:'5' %} <li class="page-item">
+                <a class="page-link" href="?page_2={{ i }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                </li> {% endif %} {% endfor %} {% if all_mystery_detail.paginator.num_pages > all_mystery_detail.number|add:'4' %} <li class="page-item disabled">
+                    <a class="page-link" href="?page_2={{ all_mystery_detail.number|add:'5' }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+                </li> {% endif %} <li class="page-item {% if not all_mystery_detail.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_mystery_detail.has_next %} ?page_2={{ all_mystery_detail.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">&raquo;</a>
+                </li>
+                <li class="page-item {% if not all_mystery_detail.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_mystery_detail.has_next %} ?page_2={{ all_mystery_detail.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">LAST</a>
+                </li>
+        </ul>
+    </nav> 
+    {% endif %}
+</div>

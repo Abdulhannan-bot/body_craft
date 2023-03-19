@@ -1,0 +1,177 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block breadcrumb %} 
+<h5 class="text-primary mb-0" style="font-weight: bold;">Salon Revenue Audit Detail</h5> 
+{% endblock breadcrumb %} 
+{% block content %}
+<div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="tag-allsalonaudit_tab" data-toggle="tab" href="#allsalonaudit_tab" role="tab" aria-controls="home" aria-selected="true" onclick="return saveTabSelect(this)">All</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-cashverification_tab" data-toggle="tab" href="#cashverification_tab" role="tab" aria-controls="cashverification" aria-selected="true" onclick="return saveTabSelect(this)">Cash Verification</a>
+        </li> 
+        <li class="nav-item">
+            <a class="nav-link" id="tag-hygiene_check" data-toggle="tab" href="#hygiene_check" role="tab" aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">Hygiene Check</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-open_bills" data-toggle="tab" href="#open_bills" role="tab" aria-controls="openbill" aria-selected="false" onclick="return saveTabSelect(this)">Open Bills</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-pushed_appointment" data-toggle="tab" href="#pushed_appointment" role="tab" aria-controls="pushedappointment" aria-selected="false" onclick="return saveTabSelect(this)">Pushed Appointment</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-block_outs" data-toggle="tab" href="#block_outs" role="tab" aria-controls="blockouts" aria-selected="false" onclick="return saveTabSelect(this)">Block outs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-deleted_services" data-toggle="tab" href="#deleted_services" role="tab" aria-controls="deletedservices" aria-selected="false" onclick="return saveTabSelect(this)">Deleted Services</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-opening_balance" data-toggle="tab" href="#opening_balance" role="tab" aria-controls="openingbalance" aria-selected="false" onclick="return saveTabSelect(this)">Opening Balance</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-petty_cash" data-toggle="tab" href="#petty_cash" role="tab" aria-controls="pettycash" aria-selected="false" onclick="return saveTabSelect(this)">Petty Cash</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-rectification_bill" data-toggle="tab" href="#rectification_bill" role="tab" aria-controls="rectificationbill" aria-selected="false" onclick="return saveTabSelect(this)">Rectification Bills</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-other_observation" data-toggle="tab" href="#other_observation" role="tab" aria-controls="otherobservation" aria-selected="false" onclick="return saveTabSelect(this)">Other Observation</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-dcr" data-toggle="tab" href="#dcr" role="tab" aria-controls="dcr" aria-selected="false" onclick="return saveTabSelect(this)">DCR</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-otp_overrides" data-toggle="tab" href="#otp_overrides" role="tab" aria-controls="otpoverrides" aria-selected="false" onclick="return saveTabSelect(this)">OTP Overrides</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-nearby_voucher" data-toggle="tab" href="#nearby_voucher" role="tab" aria-controls="nearbyvoucher" aria-selected="false" onclick="return saveTabSelect(this)">Nearby Voucher</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-campaign_offer" data-toggle="tab" href="#campaign_offer" role="tab" aria-controls="campaignoffer" aria-selected="false" onclick="return saveTabSelect(this)">Campaigns & Offers</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-cyber_security" data-toggle="tab" href="#cyber_security" role="tab" aria-controls="cybersecurity" aria-selected="false" onclick="return saveTabSelect(this)">Cyber Security Controls</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="allsalonaudit_tab" role="tabpanel" aria-labelledby="home-tab"> 
+            {% include 'revenue_audit/audit_tabs/all_audit_tab.html' %} </div>
+        <div class="tab-pane fade" id="cashverification_tab" role="tabpanel" aria-labelledby="cashverification-tab"> 
+            {% include 'revenue_audit/audit_tabs/cashverification_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="hygiene_check" role="tabpanel" aria-labelledby="profile-tab"> 
+            {% include 'revenue_audit/audit_tabs/hygiene_check_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="open_bills" role="tabpanel" aria-labelledby="openbill-tab"> 
+            {% include 'revenue_audit/audit_tabs/open_bill_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="pushed_appointment" role="tabpanel" aria-labelledby="pushedappointment-tab"> 
+            {% include 'revenue_audit/audit_tabs/pushed_appointment_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="block_outs" role="tabpanel" aria-labelledby="blockouts-tab"> 
+            {% include 'revenue_audit/audit_tabs/block_out_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="deleted_services" role="tabpanel" aria-labelledby="deletedservices-tab"> 
+            {% include 'revenue_audit/audit_tabs/deleted_services_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="opening_balance" role="tabpanel" aria-labelledby="openingbalance-tab"> 
+            {% include 'revenue_audit/audit_tabs/opening_balance_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="petty_cash" role="tabpanel" aria-labelledby="pettycash-tab"> 
+            {% include 'revenue_audit/audit_tabs/petty_cash_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="rectification_bill" role="tabpanel" aria-labelledby="rectificationbill-tab"> 
+            {% include 'revenue_audit/audit_tabs/rectification_bill_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="other_observation" role="tabpanel" aria-labelledby="otherobservation-tab"> 
+            {% include 'revenue_audit/audit_tabs/other_observation_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="dcr" role="tabpanel" aria-labelledby="dcr-tab"> 
+            {% include 'revenue_audit/audit_tabs/dcr_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="otp_overrides" role="tabpanel" aria-labelledby="otpoverrides-tab"> 
+            {% include 'revenue_audit/audit_tabs/otp_overrides_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="nearby_voucher" role="tabpanel" aria-labelledby="nearbyvoucher-tab"> 
+            {% include 'revenue_audit/audit_tabs/nearby_voucher_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="campaign_offer" role="tabpanel" aria-labelledby="campaignoffer-tab"> 
+            {% include 'revenue_audit/audit_tabs/campaign_offer_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="cyber_security" role="tabpanel" aria-labelledby="cybersecurity-tab"> 
+            {% include 'revenue_audit/audit_tabs/cyber_security_tab.html' %} 
+        </div>
+    </div>
+</div>
+<!-- On Reload stay at previous tab -->
+<script>
+    // const client_id = "{{client.id}}";
+
+    // function redirectToDataUploader() {
+    //     $('cover-spin').show();
+    //     window.location.href = `/data-uploader/?client=${client_id}`
+    // }
+
+
+    // TODO add to session
+    function saveTabSelect(item) {
+        // var selectedTag = JSON.parse(sessionStorage.getItem('client_tag')) || null;
+        // sessionStorage.setItem('client_tag', JSON.stringify(storedProductList));
+        // var selectedTag = sessionStorage.getItem('client_tag') || null;
+        // sessionStorage.setItem('client_tag', storedProductList);
+        var prevSelectedTag = localStorage.getItem("curr_salonaudit_tag");
+        // console.log(`prevSelectedTag: `, prevSelectedTag);
+        if (item.id == prevSelectedTag) {
+            return;
+        }
+        if (prevSelectedTag) {
+            var element = document.getElementById(prevSelectedTag);
+            element.classList.remove("active");
+
+            var tabPaneId = `${prevSelectedTag.split("-")[1]}`;
+            // console.log(`tabPanId: `, tabPanId);
+            var tabePaneElement = document.getElementById(tabPaneId);
+            tabePaneElement.classList.remove('active');
+        }
+        localStorage.setItem("curr_salonaudit_tag", item.id);
+        // console.log(`cur tag id: `, item.id)
+        return true;
+    }
+
+    function retrieveSelected() {
+        var curTag = localStorage.getItem("curr_salonaudit_tag");
+        // console.log(`curTag: `, curTag);
+        if (curTag) {
+            var curElement = document.getElementById(`${curTag}`);
+            if (curElement) {
+                // revome active from first pill and tab in case there's any prev tag in local storage
+                var dataTag = document.getElementById('tag-allsalonaudit_tab');
+                dataTag.classList.remove("active");
+                var dataTabPaneElement = document.getElementById('allsalonaudit_tab');
+                dataTabPaneElement.classList.remove('active');
+
+                // Add active to tab
+                curElement.classList.add("active");
+                var curPaneId = `${curTag.split('-')[1]}`;
+                var curPaneElement = document.getElementById(curPaneId);
+                curPaneElement.classList.add('show');
+                curPaneElement.classList.add('active');
+
+                // const tab = $(curElement).data('tab_selected');
+                // window.location.href = `/clients/${client_id}/?tab=${tab}`;
+            } else {
+                // Else set in local storage the current active tab
+                localStorage.setItem("curr_salonaudit_tag", 'tag-allsalonaudit_tab');
+            }
+
+        } else {
+            // Else set in local storage the current active tab
+            localStorage.setItem("curr_salonaudit_tag", 'tag-allsalonaudit_tab');
+        }
+    }
+    retrieveSelected();
+
+</script> 
+{% endblock %}

@@ -1,0 +1,236 @@
+{% load mathfilters %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for bill in all_open_bill_checklist %}
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{bill.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{bill.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_bill_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if bill.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{bill.relative_gap_found|default_if_none:''}}" id="gap_found_bill_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="compliance_bill_{{forloop.counter}}" 
+                                    value="{{bill.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{bill.id}}" id="bill_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Audit Period </th>
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> No. of bill's open </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> No. of clients on the floor </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Difference </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 30%;"> Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="text" class="form-control" value="{{revenue_audit.open_bill_audit_row_one|default_if_none:''}}" id="open_bill_audit_period_1">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.no_of_open_bill_row_one}}" 
+                                    id="no_of_bill_1" onchange="get_open_bill_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="number" class="form-control" value="{{revenue_audit.no_of_clients_on_floor_row_one}}" id="no_of_clients_1"
+                                    onchange="get_open_bill_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="bill_difference_1" 
+                                    value="{{ revenue_audit.no_of_open_bill_row_one|sub:revenue_audit.no_of_clients_on_floor_row_one }}">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" id="bill_remark_1" value="{{revenue_audit.open_bill_remark_row_one|default_if_none:''}}">
+                                </span>
+                            </td>
+                        </tr> 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <input type="text" class="form-control" value="{{revenue_audit.open_bill_audit_row_two|default_if_none:''}}" id="open_bill_audit_period_2">
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.no_of_open_bill_row_two}}" id="no_of_bill_2" onchange="get_open_bill_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="number" class="form-control" value="{{revenue_audit.no_of_clients_on_floor_row_two}}" id="no_of_clients_2" onchange="get_open_bill_difference()">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="bill_difference_2" 
+                                    value="{{ revenue_audit.no_of_open_bill_row_two|sub:revenue_audit.no_of_clients_on_floor_row_two }}">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" id="bill_remark_2" 
+                                    value="{{revenue_audit.open_bill_remark_row_two|default_if_none:''}}">
+                                </span>
+                            </td>
+                        </tr>
+                        <input type="hidden" value="{{revenue_audit.id}}" id="open_bill_revenue_audit_id">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_open_bill_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<!-- <div class="modal fade" id="add_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="hygiene_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+<script>
+
+    function get_open_bill_difference(){
+        var no_of_bill_1 = document.getElementById('no_of_bill_1').value;
+        var no_of_client_1 = document.getElementById('no_of_clients_1').value;
+        var bill_difference_1 = document.getElementById('bill_difference_1').value = no_of_bill_1 - no_of_client_1;
+        var no_of_bill_2 = document.getElementById('no_of_bill_2').value;
+        var no_of_client_2 = document.getElementById('no_of_clients_2').value;
+        var bill_difference_2 = document.getElementById('bill_difference_2').value = no_of_bill_2 - no_of_client_2;
+        if(bill_difference_1 == 0 && bill_difference_2 == 0){
+            document.getElementById('compliance_bill_1').value = 'Followed';
+        }else{
+            document.getElementById('compliance_bill_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_open_bill_data() {
+        $('#cover-spin').show(0);
+        var openbill_check_list = [];
+        var openbill_unique_question = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_bill_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_bill_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_bill_'+field_id).value;
+            data_obj['id'] = document.getElementById('bill_id_' + field_id).value;
+            openbill_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        openbill_unique_question_obj = {}
+        openbill_unique_question_obj['audit_period_1'] = document.getElementById('open_bill_audit_period_1').value;
+        openbill_unique_question_obj['no_of_bills_1'] = document.getElementById('no_of_bill_1').value;
+        openbill_unique_question_obj['no_of_client_1'] = document.getElementById('no_of_clients_1').value;
+        openbill_unique_question_obj['bill_remark_1'] = document.getElementById('bill_remark_1').value;
+        openbill_unique_question_obj['audit_period_2'] = document.getElementById('open_bill_audit_period_2').value;
+        openbill_unique_question_obj['no_of_bills_2'] = document.getElementById('no_of_bill_2').value;
+        openbill_unique_question_obj['no_of_client_2'] = document.getElementById('no_of_clients_2').value;
+        openbill_unique_question_obj['bill_remark_2'] = document.getElementById('bill_remark_2').value;
+        openbill_unique_question_obj['id'] = document.getElementById('open_bill_revenue_audit_id').value;
+        openbill_unique_question.push(openbill_unique_question_obj)
+        
+        fetch("/edit_audit_openbill/", {
+            method: "POST",
+            body: JSON.stringify({
+                'openbill_check_list': openbill_check_list,
+                'openbill_unique_question': openbill_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

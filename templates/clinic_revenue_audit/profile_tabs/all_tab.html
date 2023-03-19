@@ -1,0 +1,70 @@
+{% load mathfilters %} 
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table no-wrap mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 30%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 10%;"> Compliance </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 15%;"> Tab </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 10%;"> Status </th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for all_checklist in all_repeated_question %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{all_checklist.checklist|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    {{all_checklist.responsible_kra|default_if_none:''}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    {{all_checklist.person_responsible.zenoti_data.employee_name|default_if_none:''}}
+                                </span>
+                            </td>
+                            <!-- <td>
+                                <span class="text-muted">
+                                    <input class="form-control" type="text" value="{{one.relative_gap_found|default_if_none:''}}" id="cashverification_relativegap_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    {{all_checklist.compliance|default_if_none:''}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    {{all_checklist.tab_name}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class=""> 
+                                    {% if all_checklist.person_responsible and all_checklist.compliance %} 
+                                    <p class="text-info"><i class="fas fa-check-circle"></i></p> 
+                                    {% else %} 
+                                    <i class=" fas fa-exclamation-circle"></i> 
+                                    {% endif %} 
+                                </span>
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_cash_verification_data()">Update</button>
+        </div> -->
+    </div>
+</div>

@@ -1,0 +1,197 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for dcr in all_dcr_checklist %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{dcr.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                {{dcr.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_dcr_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if dcr.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" readonly value="{{dcr.compliance|default_if_none:''}}" id="compliance_dcr_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{dcr.id}}" id="dcr_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 20%;"> Checklist </th> -->
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> DCR updated for Previous date </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 25%;"> Cash deposited for Month to Date </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 50%;"> Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted"> Blockouts </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <select class="form-control" id="dcr_for_previous_date_1" onchange="get_dcr_difference()">
+                                        <option value=""></option>
+                                        <option {% if revenue_audit.dcr_updated == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                        <option {% if revenue_audit.dcr_updated == 'No' %} selected {% endif %} value="No">No</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <select class="form-control" id="dcr_cash_deposited_1" onchange="get_dcr_difference()">
+                                        <option value=""></option>
+                                        <option {% if revenue_audit.dcr_cash_deposited == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                        <option {% if revenue_audit.dcr_cash_deposited == 'No' %} selected {% endif %} value="No">No</option>
+                                    </select>
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <input class="form-control" type="text" value="{{revenue_audit.dcr_remark|default_if_none:''}}" id="dcr_remark_1">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{revenue_audit.id}}" id="dcr_revenue_audit_id">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_dcr_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<!-- <div class="modal fade" id="add_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="hygiene_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+<script>
+
+    function get_dcr_difference() {
+        // ****if Both field is 0, it is Followed, else Not Followed
+        var dcr_updated = document.getElementById('dcr_for_previous_date_1').value;
+        var dcr_desposit = document.getElementById('dcr_cash_deposited_1').value;
+        if (dcr_updated && dcr_desposit) {
+            if (dcr_updated == 'Yes' && dcr_desposit == 'Yes') {
+                document.getElementById('compliance_dcr_1').value = 'Followed';
+            } else {
+                document.getElementById('compliance_dcr_1').value = 'Not Followed';
+            }
+        } else {
+            document.getElementById('compliance_dcr_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_dcr_data() {
+        $('#cover-spin').show(0);
+        var dcr_check_list = [];
+        var dcr_unique_question = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_dcr_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_blockout_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_dcr_' + field_id).value;
+            data_obj['id'] = document.getElementById('dcr_id_' + field_id).value;
+            dcr_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        dcr_unique_question_obj = {}
+        dcr_unique_question_obj['update'] = document.getElementById('dcr_for_previous_date_1').value;
+        dcr_unique_question_obj['deposit'] = document.getElementById('dcr_cash_deposited_1').value;
+        dcr_unique_question_obj['remark'] = document.getElementById('dcr_remark_1').value;
+        dcr_unique_question_obj['id'] = document.getElementById('dcr_revenue_audit_id').value;
+        dcr_unique_question.push(dcr_unique_question_obj)
+
+        fetch("/edit_audit_dcr/", {
+            method: "POST",
+            body: JSON.stringify({
+                'dcr_check_list': dcr_check_list,
+                'dcr_unique_question': dcr_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

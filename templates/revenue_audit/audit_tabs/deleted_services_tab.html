@@ -1,0 +1,233 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for service in all_deleted_services %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{service.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{service.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_del_service_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if service.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{service.relative_gap_found|default_if_none:''}}" id="gap_found_del_service_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" id="compliance_del_service_{{forloop.counter}}" 
+                                    value="{{service.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{service.id}}" id="del_service_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="m-2">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Action </button>
+                    <div class="dropdown-menu">
+                        <form action="" method="post"> 
+                            {% csrf_token %} 
+                            <Button class="dropdown-item" type="submit" name="create_one_deleted_service_annexure_row"> Add single row </Button>
+                        </form>
+                        <Button class="dropdown-item" data-toggle="modal" data-target="#add_deleted_service_annexure_row_modal"> Add Multiple row</Button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table user-table mb-0" id="deleted_service_annexure_table">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Name </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px;"> Designation </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px; "> No. of services deleted </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 150px; "> Deleted without proper justification </th>
+                            <th scope="col" class="border-0 text-bold" style="max-width: 200px;"> Remark </th>
+                            <th scope="col" class="border-0 text-bold" style="min-width: 30px;"> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        {% for deleted in all_deleted_service_annexure %} 
+                        <tr {% if deleted.name and deleted.designation and deleted.no_of_services_deleted and deleted.deleted_without_justification %} style="background-color: rgb(231 231 244);" {% endif %}>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{deleted.name|default_if_none:''}}" 
+                                    id="deleted_name_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{deleted.designation|default_if_none:'' }}" id="deleted_designation_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{deleted.no_of_services_deleted|default_if_none:''}}" id="services_deleted_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{deleted.deleted_without_justification|default_if_none:''}}" id="deleted_services_without_justification_{{forloop.counter}}" onchange="get_deleted_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <input type="text" class="form-control" value="{{deleted.remarks|default_if_none:''}}" id="deleted_remark_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <form action="" method="post"> 
+                                    {% csrf_token %} 
+                                    <input type="hidden" name="del_id" id="" value="{{deleted.id}}">
+                                    <button type="submit" name="deleted_service_annexure_del_row" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <input type="hidden" value="{{deleted.id}}" id="deleted_service_annexure_id_{{forloop.counter}}">
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_deleted_services_data()">Update</button>
+        </div>
+    </div>
+</div>
+<!-- add multiple annexure row modal  -->
+<div class="modal fade" id="add_deleted_service_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post"> 
+                    {% csrf_token %} <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="deleted_service_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function get_deleted_difference() {
+        var deleted_service_annexure_table = document.getElementById('deleted_service_annexure_table');
+        var total_rows = deleted_service_annexure_table.tBodies[0].rows.length;
+        var total_sum = 0
+        for(var i=0; i<total_rows; i++){
+            var loop_id = i+1;
+            total_sum += document.getElementById('deleted_services_without_justification_'+loop_id).value;
+        }
+        if(total_sum == 0){
+            document.getElementById('compliance_del_service_1').value = 'Followed';
+        }else{
+            document.getElementById('compliance_del_service_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_deleted_services_data() {
+        $('#cover-spin').show(0);
+        var deleted_service_check_list = [];
+        var deleted_service_unique_question = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_del_service_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_appointment_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_del_service_' + field_id).value;
+            data_obj['id'] = document.getElementById('del_service_id_' + field_id).value;
+            deleted_service_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        var deleted_service_annexure_table = document.getElementById('deleted_service_annexure_table');
+        var total_rows = deleted_service_annexure_table.tBodies[0].rows.length;
+        for(var i=0; i<total_rows; i++){
+            var loop_id = i+1;
+            deletedservice_unique_question_obj = {}
+            deletedservice_unique_question_obj['name'] = document.getElementById('deleted_name_'+ loop_id).value;
+            deletedservice_unique_question_obj['designation'] = document.getElementById('deleted_designation_'+ loop_id).value;
+            deletedservice_unique_question_obj['delted_service'] = document.getElementById('services_deleted_'+ loop_id).value;
+            deletedservice_unique_question_obj['deleted_service_without_justification'] = document.getElementById('deleted_services_without_justification_'+ loop_id).value;
+            deletedservice_unique_question_obj['remark'] = document.getElementById('deleted_remark_'+ loop_id).value;
+            deletedservice_unique_question_obj['id'] = document.getElementById('deleted_service_annexure_id_'+ loop_id).value;
+            deleted_service_unique_question.push(deletedservice_unique_question_obj);
+        }
+
+        fetch("/edit_audit_deleted_service/", {
+            method: "POST",
+            body: JSON.stringify({
+                'deleted_service_check_list': deleted_service_check_list,
+                'deleted_service_annexure': deleted_service_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

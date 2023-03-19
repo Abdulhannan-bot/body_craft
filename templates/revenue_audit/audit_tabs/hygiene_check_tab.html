@@ -1,0 +1,921 @@
+<style>
+    .table-2 thead {
+        position: sticky;
+        top: 0;
+        background-color: rgb(151 112 112);
+        z-index: 1;
+    }
+    /* .table-style {
+        overflow-x: auto;
+    }  */
+    /* table, th, td {
+        border: 1px solid black;
+    }     */
+    /* .table-style tr th:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    } */
+    /* .table-style tr td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    } */
+    .table-2 tr :nth-child(2) {
+        position: sticky;
+        left: 0;
+        /* z-index: 2; */
+        background-color: rgb(255, 255, 255);
+    }
+    /* .table-style tr :nth-child(3) {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    } */
+    /* .table-style tr :nth-child(4) {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    } */
+    /* .table-style tr :nth-child(5) {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: rgb(151 112 112);
+    }  */
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for checklist in all_hygiene_checklist  %}
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{checklist.checklist|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{checklist.responsible_kra|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="user_{{checklist.id}}" id="responsible_hc_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if checklist.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{checklist.relative_gap_found|default_if_none:'' }}" id="relativegap_hc_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" readonly type="text" name="" id="compliance_hc_{{forloop.counter}}" value="{{checklist.compliance|default_if_none:''}}">
+                                    
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{checklist.id}}" id="checklist_hc_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br><br>
+        <h3>Hygiene Check</h3>
+        <div class="row ml-1">
+            <div class="btn-group">
+                <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Action </button>
+                <div class="dropdown-menu">
+                    <form action="" method="post"> 
+                        {% csrf_token %} 
+                        <Button class="dropdown-item" type="submit" name="create_one_hygiene_annexure_row">
+                        Add single row </Button>
+                    </form>
+                    <Button class="dropdown-item" data-toggle="modal" data-target="#add_annexure_row_modal">
+                    Add Multiple row</Button>
+                    <Button class="dropdown-item" data-toggle="modal" data-target="#copy_sheet_modal">Copy From Sheet</Button>
+                    <Button class="dropdown-item" data-toggle="modal" data-target="#fetch_zenoti_hygiene_check_modal">Fetch From Zenoti</Button>
+                    <Button class="dropdown-item" data-toggle="modal" data-target="#hygiene_check_multiple_delete_modal">
+                        Multiple Delete
+                    </Button>
+                </div>
+            </div> 
+        </div>
+        <div class="table-responsive table-style" style="height: 500px;">
+            <table class="table table-2" id="hygiene_annexure_table">
+                <thead class="text-white" style="background-color: rgb(151 112 112);">
+                    <tr>
+                        <th scope="col" class="border-0 text-bold" style="width: 30px;"> 
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="all_del_checkbox" 
+                                onchange="select_all_delete_checkbox()">
+                            </div>
+                        </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; background-color: rgb(151 112 112); "> Invoice Number </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> Sample Dates </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> Total Guests </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px; "> Sample size for Audit </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 100px;"> Reception copy </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 100px;"> Security copy </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 100px;"> security sheet </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 100px;"> Feedback updated </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> Was the rating above 4 for all categories</th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> If No, was the IM created </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 100px;"> Job card attached </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> Job card matches with invoice </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 100px;"> SA signature </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 150px;"> Evidence </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 400px;"> Remark </th>
+                        <th scope="col" class="border-0 text-bold" style="min-width: 30px;"> Action </th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    {% for annexure in all_hygiene_annexure %} 
+                    <tr>
+                        <td style="white-space: normal;">
+                            <div class="form-group form-check">
+                                <input type="checkbox" value="{{annexure.id}}" class="form-check-input" id="del_checkbox_{{forloop.counter}}">
+                            </div>
+                        </td>
+                        <td style="white-space: normal;">
+                            <input class="form-control" type="text" name="invoice_number" value="{{annexure.invoice_number|default_if_none:''}}" id="invoice_number_{{forloop.counter}}" onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class="text-white">
+                                <input class="form-control" type="date" name="sample_date" value="{{annexure.sample_dates}}" id="sample_date_{{forloop.counter}}" onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <input class="form-control" type="number" name="total_guest" value="{{annexure.total_guest}}" 
+                            id="total_guest_{{forloop.counter}}" onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                        </td>
+                        <td style="white-space: normal;">
+                            <input class="form-control" type="text" name="sample_size" value="{{annexure.sample_size_for_audit|default_if_none:''}}" 
+                            id="sample_size_{{forloop.counter}}" onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                        </td>
+                        <td style="white-space: normal;">
+                            <select class="form-control reception-copy" name="reception_copy" id="reception_copy_{{forloop.counter}}" onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                                <option value=""></option>
+                                <option {% if annexure.reception_copy == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                <option {% if annexure.reception_copy == 'No' %} selected {% endif %} value="No">No</option>   
+                            </select>
+                        </td>
+                        <td style="white-space: normal;"> 
+                            <select class="form-control security-copy" name="security_copy" id="security_copy_{{forloop.counter}}"
+                            onchange="save_salon_hygiene_annexure(this,'{{annexure.id}}')">
+                                <option value=""></option>
+                                <option {% if annexure.security_copy == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                <option {% if annexure.security_copy == 'No' %} selected {% endif %} value="No">No</option>
+                            </select>
+                        </td>
+                        <td style="white-space: normal;">
+                            
+                        <select class="form-control security-sheet" name="security_sheet" id="security_sheet_{{forloop.counter}}"
+                        onchange="save_salon_hygiene_annexure(this,'{{annexure.id}}')">
+                            <option value=""></option>
+                            <option {% if annexure.security_sheet == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                            <option {% if annexure.security_sheet == 'No' %} selected {% endif %} value="No">No</option>
+                        </select>
+                            
+                        </td>
+                        <td style="white-space: normal;">
+                            
+                            <select class="form-control feedback-updated" name="feedback_updated" id="feedback_updated_{{forloop.counter}}"
+                            onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                                <option value=""></option>
+                                <option {% if annexure.feedback_updated == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                <option {% if annexure.feedback_updated == 'No' %} selected {% endif %} value="No">No</option>
+                            </select>
+                           
+                        </td>
+                        <td style="white-space: normal;">
+                            <select class="form-control rating-above-4" name="rating_above_4" id="rating_above_4_{{forloop.counter}}"
+                            onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                                <option value=""></option>
+                                <option {% if annexure.was_the_rating_above_4 == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                <option {% if annexure.was_the_rating_above_4 == 'No' %} selected {% endif %} value="No">No</option>
+                                <option {% if annexure.was_the_rating_above_4 == 'NA' %} selected {% endif %} value="NA">NA</option>
+                            </select>
+                        </td>
+                        <td style="white-space: normal;">
+                            <select class="form-control im-created" name="im_created" id="im_created_{{forloop.counter}}"
+                            onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                                <option value=""></option>
+                                <option {% if annexure.if_no_was_the_im_created == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                <option {% if annexure.if_no_was_the_im_created == 'No' %} selected {% endif %} value="No">No</option>
+                                <option {% if annexure.if_no_was_the_im_created == 'NA' %} selected {% endif %} value="NA">NA</option>
+                            </select>
+                        </td>
+                        <td style="white-space: normal;">
+                            <select class="form-control job-card-attached" name="job_card_attached" id="job_card_attached_{{forloop.counter}}"
+                            onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                                <option value=""></option>
+                                <option {% if annexure.job_card_attached == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                <option {% if annexure.job_card_attached == 'No' %} selected {% endif %} value="No">No</option>
+                            </select>
+                        </td>
+                        <td style="white-space: normal;">
+                            <select class="form-control job-card-matches" name="job_card_matches" id="job_card_matches_{{forloop.counter}}"
+                            onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                                <option value=""></option>
+                                <option {% if annexure.job_card_matches_invoice == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                <option {% if annexure.job_card_matches_invoice == 'No' %} selected {% endif %} value="No">No</option>
+                                <option {% if annexure.job_card_matches_invoice == 'NM' %} selected {% endif %} value="NM">NM</option>
+                            </select>   
+                        </td>
+                        <td style="white-space: normal;">
+                            <select class="form-control sa-signature" name="sa_signature" id="sa_signature_{{forloop.counter}}"
+                            onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                                <option value=""></option>
+                                <option {% if annexure.sa_signature == 'Yes' %} selected {% endif %} value="Yes">Yes</option>
+                                <option {% if annexure.sa_signature == 'No' %} selected {% endif %} value="No">No</option>
+                            </select>
+                        </td>
+                        <td style="white-space: normal;">
+                            <span class=""> 
+                                {% if annexure.evidence %} 
+                                <a href="{{annexure.evidence.url}}">Evidence Link</a> <br> 
+                                {% endif %} 
+                                <input type="file" class="form-control" name="annexure_file" value="" id="evidence_annexure_{{forloop.counter}}" onchange="save_salon_hygiene_annexure_files(this, '{{annexure.id}}')">
+                            </span>
+                        </td>
+                        <td style="white-space: normal;">
+                            <input type="text" class="form-control" value="{{annexure.remark|default_if_none:''}}" name="remark_annexure"
+                            id="remark_annexure_{{forloop.counter}}" onchange="save_salon_hygiene_annexure(this, '{{annexure.id}}')">
+                        </td>
+                        <td style="white-space: normal;">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="del_id" id="" value="{{annexure.id}}">
+                                <button type="submit" name="hygiene_annexure_del_row" class="btn btn-danger"><i class="fas fa-trash"></i></button> &nbsp;
+                            </form>
+                        </td>
+                        <input type="hidden" value="{{annexure.id}}" id="checklist_annexure_id_{{forloop.counter}}">
+                    </tr> 
+                    {% endfor %} 
+                </tbody>
+            </table>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_hygiene_data()">Update</button>
+        </div>
+    </div>
+</div>
+
+<!-- add multiple annexure row modal  -->
+<div class="modal fade" id="add_annexure_row_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Multiple Row's</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <label for="">Enter the number of Row's you want</label>
+                    <input class="form-control" type="number" name="annexure_row" id="">
+                    <div class="row justify-content-center p-2">
+                        <button class="btn btn-success" type="submit" name="hygiene_annexure_multiple_row">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="copy_sheet_modal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Copy From Sheet</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="">Invoice Number | Sample Dates | Total Guests | Sample size for Audit</label>
+                <Textarea class="form-control" id="sheet_text_area_id" name="sheet_text_area" rows="20"></Textarea>
+                <div class="row justify-content-center p-2">
+                    <button class="btn btn-success" onclick="copy_from_sheet()" >Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- fetch zenoti data for hygiene  -->
+<div class="modal fade" id="fetch_zenoti_hygiene_check_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Fetch Zenoti Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" id="salon_zenoti_hygiene_data_form"> 
+                    {% csrf_token %}
+                    <h3 class="text-danger">Are you Sure, You Want To Fetch Data From Zenoti ?</h3>
+                    <div class="row justify-content-center p-2">
+                        <input type="hidden" name="fetch_zenoti_data_hygiene_salon" id="">
+                        <button class="btn btn-success" type="submit" onclick="button_click(this, 'salon_zenoti_hygiene_data_form')">Yes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- multiple delete warning  -->
+<div class="modal fade" id="hygiene_check_multiple_delete_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Fetch Zenoti Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body"> 
+                <h3 class="text-danger">Are you Sure, You Want To Delete the Hygiene Data ?</h3>
+                <div class="row justify-content-center p-2">
+                    <button class="btn btn-success" type="button" onclick="delete_multiple_hygiene_check()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div> 
+    {% if all_hygiene_annexure.paginator.num_pages > 1%} <!-- Paginator -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not all_hygiene_annexure.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="?hygiene_page=1{% for key,value in request.GET.items %}{% if key != 'hygiene_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" tabindex="-1">FIRST</a>
+            </li>
+            <li class="page-item {% if not all_hygiene_annexure.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="{% if all_hygiene_annexure.has_previous %}?hygiene_page={{ all_hygiene_annexure.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'hygiene_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %} " tabindex="-1"> &laquo;</a>
+            </li> {% if all_hygiene_annexure.number|add:'-4' > 1 %} <li class="page-item disabled">
+                <a class="page-link" href="?hygiene_page={{ all_hygiene_annexure.number|add:'-5' }}{% for key,value in request.GET.items %}{% if key != 'hygiene_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+            </li> {% endif %} {% for i in all_hygiene_annexure.paginator.page_range %} {% if all_hygiene_annexure.number == i %} <li class="active page-item current ">
+                <a class="page-link" href="?hygiene_page={{ i }}{% for key,value in request.GET.items %}{% if key != 'hygiene_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+            </li> {% elif i > all_hygiene_annexure.number|add:'-5' and i < all_hygiene_annexure.number|add:'5' %} <li class="page-item">
+                <a class="page-link" href="?hygiene_page={{ i }}{% for key,value in request.GET.items %}{% if key != 'hygiene_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                </li> {% endif %} {% endfor %} {% if all_hygiene_annexure.paginator.num_pages > all_hygiene_annexure.number|add:'4' %} <li class="page-item disabled">
+                    <a class="page-link" href="?hygiene_page={{ all_hygiene_annexure.number|add:'5' }}{% for key,value in request.GET.items %}{% if key != 'hygiene_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+                </li> {% endif %} <li class="page-item {% if not all_hygiene_annexure.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_hygiene_annexure.has_next %} ?hygiene_page={{ all_hygiene_annexure.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'hygiene_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">&raquo;</a>
+                </li>
+                <li class="page-item {% if not all_hygiene_annexure.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_hygiene_annexure.has_next %} ?hygiene_page={{ all_hygiene_annexure.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'hygiene_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">LAST</a>
+                </li>
+        </ul>
+    </nav> 
+    {% endif %}
+</div>
+
+<script>
+
+    function copy_from_sheet(){
+        $('#cover-spin').show(0);
+        var sheet_text = document.getElementById('sheet_text_area_id').value;
+        var all_data = sheet_text.split("\n")
+        var final_list = [];
+        for(i=0; i<all_data.length; i++){
+            var this_data = all_data[i];
+            var this_indi_data = this_data.split("\t")
+            console.log("data", this_indi_data)
+            final_list.push(this_indi_data);
+        }
+
+        fetch("/add_hygiene_check_from_sheet/", {
+            method: "POST",
+            body: JSON.stringify({
+                'sheet_data': final_list,
+                'salon_overview_id': '{{revenue_audit.id}}'
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    location.reload();
+                    $('#cover-spin').hide(0);
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+
+    }
+
+    function save_salon_hygiene_annexure(t, annex_id){
+        $('#cover-spin').show(0);
+        var input_val = t.value;
+        var annexure_id = annex_id;
+        var annexure_name = t.name;
+        // console.log('data', input_val, annexure_id, annexure_name)
+        fetch("/save_salon_hygiene_annexure/", {
+            method: "POST",
+            body: JSON.stringify({
+                'annexure_id': annexure_id,
+                'value': input_val,
+                'name': annexure_name
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    // hygiene_annexure_onchange();
+                    $('#cover-spin').hide(0);
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+
+    }
+    // function open_salon_annexure_form(t) {
+    //         var row = t.closest("tr");
+    //         var annexure_id = t.id.split("_")[1];
+    //         console.log('row', row)
+    //         var tds = row.querySelectorAll("td");
+    //         var input_1 = document.createElement("input");
+    //         input_1.type = "date";
+    //         input_1.className = "form-control";
+    //         input_1.id = "sample_date_id_" + annexure_id;
+    //         input_1.value = tds[1].textContent.trim();
+    //         tds[1].textContent = "";
+    //         tds[1].appendChild(input_1);
+
+    //         var input_2 = document.createElement("input");
+    //         input_2.type = "number";
+    //         input_2.className = "form-control";
+    //         input_1.id = "total_guest_id_" + annexure_id;
+    //         input_2.value = tds[2].textContent.trim();
+    //         tds[2].textContent = "";
+    //         tds[2].appendChild(input_2);
+
+    //         var input_3 = document.createElement("input");
+    //         input_3.type = "number";
+    //         input_3.className = "form-control";
+    //         input_1.id = "sample_size_id_" + annexure_id;
+    //         input_3.value = tds[3].textContent.trim();
+    //         tds[3].textContent = "";
+    //         tds[3].appendChild(input_3);
+
+    //         var input_4 = document.createElement("input");
+    //         input_4.type = "text";
+    //         input_4.className = "form-control";
+    //         input_1.id = "invoice_number_id_" + annexure_id;
+    //         input_4.value = tds[4].textContent.trim();
+    //         tds[4].textContent = "";
+    //         tds[4].appendChild(input_4);
+
+    //         var select_1 = document.createElement("select");
+    //         select_1.className = "form-control";
+    //         select_1.id = "reception_copy_id_" + annexure_id;
+    //         var option0_1 = document.createElement("option");
+    //         option0_1.text = "";
+    //         option0_1.value = "";
+    //         select_1.add(option0_1);
+    //         var option1_1 = document.createElement("option");
+    //         option1_1.text = "Yes";
+    //         option1_1.value = "Yes";
+    //         select_1.add(option1_1);
+    //         var option2_1 = document.createElement("option");
+    //         option2_1.text = "No";
+    //         option2_1.value = "No";
+    //         select_1.add(option2_1);
+    //         tds[5].innerHTML = "";
+    //         tds[5].appendChild(select_1);
+
+    //         var select_2 = document.createElement("select");
+    //         select_2.className = "form-control";
+    //         select_2.id = "security_copy_id_" + annexure_id;
+    //         var option0_2 = document.createElement("option");
+    //         option0_2.text = "";
+    //         option0_2.value = "";
+    //         select_2.add(option0_2);
+    //         var option1_2 = document.createElement("option");
+    //         option1_2.text = "Yes";
+    //         option1_2.value = "Yes";
+    //         select_2.add(option1_2);
+    //         var option2_2 = document.createElement("option");
+    //         option2_2.text = "No";
+    //         option2_2.value = "No";
+    //         select_2.add(option2_2);
+    //         tds[6].innerHTML = "";
+    //         tds[6].appendChild(select_2);
+
+    //         var select_3 = document.createElement("select");
+    //         select_3.className = "form-control";
+    //         select_3.id = "security_sheet_id_" + annexure_id;
+    //         var option0_3 = document.createElement("option");
+    //         option0_3.text = "";
+    //         option0_3.value = "";
+    //         select_3.add(option0_3);
+    //         var option1_3 = document.createElement("option");
+    //         option1_3.text = "Yes";
+    //         option1_3.value = "Yes";
+    //         select_3.add(option1_3);
+    //         var option2_3 = document.createElement("option");
+    //         option2_3.text = "No";
+    //         option2_3.value = "No";
+    //         select_3.add(option2_3);
+    //         tds[7].innerHTML = "";
+    //         tds[7].appendChild(select_3);
+
+    //         var select_4 = document.createElement("select");
+    //         select_4.className = "form-control";
+    //         select_4.id = "feedback_id_" + annexure_id;
+    //         var option0_4 = document.createElement("option");
+    //         option0_4.text = "";
+    //         option0_4.value = "";
+    //         select_4.add(option0_4);
+    //         var option1_4 = document.createElement("option");
+    //         option1_4.text = "Yes";
+    //         option1_4.value = "Yes";
+    //         select_4.add(option1_4);
+    //         var option2_4 = document.createElement("option");
+    //         option2_4.text = "No";
+    //         option2_4.value = "No";
+    //         select_4.add(option2_4);
+    //         tds[8].innerHTML = "";
+    //         tds[8].appendChild(select_4);
+
+    //         var select_5 = document.createElement("select");
+    //         select_5.className = "form-control";
+    //         select_5.id = "rating_above_4_id_" + annexure_id;
+    //         var option0_5 = document.createElement("option");
+    //         option0_5.text = "";
+    //         option0_5.value = "";
+    //         select_5.add(option0_5);
+    //         var option1_5 = document.createElement("option");
+    //         option1_5.text = "Yes";
+    //         option1_5.value = "Yes";
+    //         select_5.add(option1_5);
+    //         var option2_5 = document.createElement("option");
+    //         option2_5.text = "No";
+    //         option2_5.value = "No";
+    //         select_5.add(option2_5);
+    //         var option3_5 = document.createElement("option");
+    //         option3_5.text = "NA";
+    //         option3_5.value = "NA";
+    //         select_5.add(option3_5);
+    //         tds[9].innerHTML = "";
+    //         tds[9].appendChild(select_5);
+
+    //         var select_6 = document.createElement("select");
+    //         select_6.className = "form-control";
+    //         select_6.id = "im_created_id_" + annexure_id;
+    //         var option0_6 = document.createElement("option");
+    //         option0_6.text = "";
+    //         option0_6.value = "";
+    //         select_6.add(option0_6);
+    //         var option1_6 = document.createElement("option");
+    //         option1_6.text = "Yes";
+    //         option1_6.value = "Yes";
+    //         select_6.add(option1_6);
+    //         var option2_6 = document.createElement("option");
+    //         option2_6.text = "No";
+    //         option2_6.value = "No";
+    //         select_6.add(option2_6);
+    //         var option3_6 = document.createElement("option");
+    //         option3_6.text = "NA";
+    //         option3_6.value = "NA";
+    //         select_6.add(option3_6);
+    //         tds[10].innerHTML = "";
+    //         tds[10].appendChild(select_6);
+
+    //         var select_7 = document.createElement("select");
+    //         select_7.className = "form-control";
+    //         select_7.id = "job_card_attached_id_" + annexure_id;
+    //         var option0_7 = document.createElement("option");
+    //         option0_7.text = "";
+    //         option0_7.value = "";
+    //         select_7.add(option0_7);
+    //         var option1_7 = document.createElement("option");
+    //         option1_7.text = "Yes";
+    //         option1_7.value = "Yes";
+    //         select_7.add(option1_7);
+    //         var option2_7 = document.createElement("option");
+    //         option2_7.text = "No";
+    //         option2_7.value = "No";
+    //         select_7.add(option2_7);
+    //         tds[11].innerHTML = "";
+    //         tds[11].appendChild(select_7);
+
+    //         var select_8 = document.createElement("select");
+    //         select_8.className = "form-control";
+    //         select_8.id = "job_card_matches_id_" + annexure_id;
+    //         var option0_8 = document.createElement("option");
+    //         option0_8.text = "";
+    //         option0_8.value = "";
+    //         select_8.add(option0_8);
+    //         var option1_8 = document.createElement("option");
+    //         option1_8.text = "Yes";
+    //         option1_8.value = "Yes";
+    //         select_8.add(option1_8);
+    //         var option2_8 = document.createElement("option");
+    //         option2_8.text = "No";
+    //         option2_8.value = "No";
+    //         select_8.add(option2_8);
+    //         var option3_8 = document.createElement("option");
+    //         option3_8.text = "NM";
+    //         option3_8.value = "NM";
+    //         select_8.add(option3_8);
+    //         tds[12].innerHTML = "";
+    //         tds[12].appendChild(select_8);
+
+    //         var select_9 = document.createElement("select");
+    //         select_9.className = "form-control";
+    //         select_9.id = "sa_signature_id_" + annexure_id;
+    //         var option0_9 = document.createElement("option");
+    //         option0_9.text = "";
+    //         option0_9.value = "";
+    //         select_9.add(option0_9);
+    //         var option1_9 = document.createElement("option");
+    //         option1_9.text = "Yes";
+    //         option1_9.value = "Yes";
+    //         select_9.add(option1_9);
+    //         var option2_9 = document.createElement("option");
+    //         option2_9.text = "No";
+    //         option2_9.value = "No";
+    //         select_9.add(option2_9);
+    //         tds[13].innerHTML = "";
+    //         tds[13].appendChild(select_9);
+
+    //         var input_5 = document.createElement("input");
+    //         input_5.type = "text";
+    //         input_5.className = "form-control";
+    //         input_5.id = "remark_id_" + annexure_id;
+    //         input_5.value = tds[14].textContent.trim();
+    //         tds[14].textContent = "";
+    //         tds[14].appendChild(input_5);
+
+    //     }
+
+    function save_salon_hygiene_annexure_files(t, annex_id) {
+        $('#cover-spin').show(0);
+        var input_id = t.id;
+        var annexure_id = annex_id;
+        const fileInput = document.getElementById(input_id);
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('annexure_id', annexure_id);
+        console.log('file', formData)
+        // console.log('data', input_val, annexure_id, annexure_name)
+        $.ajax({
+            url: "/save_salon_hygiene_annexure_file/",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                console.log("success", data);
+                if (data.msg == 'success') {
+                    $('#cover-spin').hide(0);
+                }
+            },
+            error: function (xhr, status, error) {
+                // handle error
+                alert('Something went wrong, Please try again after refreshing the page');
+            }
+        });
+        // fetch("/save_salon_hygiene_annexure_file/", {
+        //     method: "POST",
+        //     body: formData,
+        //     // Adding headers to the request
+        //     headers: {
+        //         "Content-type": "application/json",
+        //         "X-CSRFToken": "{{ csrf_token }}",
+        //     },
+        // })
+        //     .then((response) => {
+        //         // console.log(response);
+        //         if (response.redirected) {
+        //             window.location.href = response.url;
+        //             return;
+        //         }
+        //         return response.json();
+        //     })
+        //     .then((data) => {
+        //         // console.log("Success: ", data);
+        //         if (data.msg == 'success') {
+        //             // $('#cover-spin').hide(0);
+        //             // hygiene_annexure_onchange();
+        //             $('#cover-spin').hide(0);
+        //         }
+        //         else {
+        //             alert('Something went wrong, Please try again after refreshing the page')
+        //             $('#cover-spin').hide(0);
+        //         }
+        //     });
+
+    }
+
+
+    function delete_multiple_hygiene_check(){
+        $('#cover-spin').show(0);
+        var annexure_table = document.getElementById('hygiene_annexure_table');
+        var total_rows = annexure_table.tBodies[0].rows.length;
+        // console.log(total_rows)
+        var total_del_id_list = []
+        for (var i = 0; i < total_rows; i++) {
+            var loop_id = i + 1
+            var each_checkbox = document.getElementById('del_checkbox_' + loop_id);
+            if(each_checkbox.checked){
+                total_del_id_list.push(each_checkbox.value);
+            }
+        }
+        fetch("/delete_multiple_salon_hygiene_check/", {
+            method: "POST",
+            body: JSON.stringify({
+                'id_list': total_del_id_list
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+
+
+    function select_all_delete_checkbox(){
+        var all_checkbox_click = document.getElementById('all_del_checkbox');
+        var annexure_table = document.getElementById('hygiene_annexure_table');
+        var total_rows = annexure_table.tBodies[0].rows.length;
+        // console.log(total_rows)
+        if(all_checkbox_click.checked){
+            for (var i = 0; i < total_rows; i++) {
+                var loop_id = i + 1
+                document.getElementById('del_checkbox_'+loop_id).checked = true;
+            }
+        }else{
+            for (var i = 0; i < total_rows; i++) {
+                var loop_id = i + 1
+                document.getElementById('del_checkbox_' + loop_id).checked = false;
+            }
+        }
+
+    }
+    function hygiene_annexure_onchange(){
+        var all_columns = [
+            ['reception-copy','compliance_hc_1'],
+            ['security-copy', 'compliance_hc_2'],
+            ['security-sheet', 'compliance_hc_3'],
+            ['feedback-updated', 'compliance_hc_4'],
+            ['rating-above-4', 'compliance_hc_5'],
+            ['im-created', 'compliance_hc_6'],
+            ['job-card-attached', 'compliance_hc_7'],
+            ['job-card-matches', 'compliance_hc_8'],
+            ['sa-signature', 'compliance_hc_9']
+        ];
+        for(var i=0; i<all_columns.length; i++ ){
+            var this_column = all_columns[i][0];
+            var elements = document.getElementsByClassName(this_column);
+            var yes = 0, no=0, na=0;
+            for(m=0; m<elements.length; m++){
+                var this_value = elements[m].value;
+                if (this_value == 'Yes'){yes++}
+                if(this_value == 'No'){no++}
+                if(this_value == 'NA') { na++}
+            }
+            var total = yes + no + na;
+            if(total == 0){continue};
+            var decimal = yes/total;
+            var compliance = 'Not Followed';
+            if(decimal >= 0.9){compliance='Followed'}else if(decimal >= 0.75){compliance='Partially Followed'}
+            var compliance_element_id = all_columns[i][1];
+            document.getElementById(compliance_element_id).value = compliance;
+
+        }
+    }
+
+    function edit_all_hygiene_data() {
+        $('#cover-spin').show(0);
+        // var hygiene_check_list = [];
+        // for (var i = 0; i < 9; i++) {
+        //     var field_id = i + 1
+        //     var data_obj = {}
+        //     data_obj['person_responsible'] = document.getElementById('responsible_hc_' + field_id).value;
+        //     // data_obj['relative_gap'] = document.getElementById('relativegap_hc_' + field_id).value;
+        //     data_obj['compliance'] = document.getElementById('compliance_hc_'+field_id).value;
+        //     data_obj['id'] = document.getElementById('checklist_hc_id_' + field_id).value;
+        //     hygiene_check_list.push(data_obj);
+        // }
+        // console.log(hygiene_check_list)
+        fetch("/edit_audit_hygiene_check/", {
+            method: "POST",
+            body: JSON.stringify({
+                // 'hygiene_check_list': hygiene_check_list,
+                'id': '{{ revenue_audit.id }}',
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

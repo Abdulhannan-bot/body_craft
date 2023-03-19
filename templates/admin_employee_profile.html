@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block breadcrumb %} 
+<h5 class="text-primary mb-0" style="font-weight: bold;">Staff Profile >> {{employee_detail.employee_name}}</h5> 
+{% endblock breadcrumb %}
+{% block content %}
+<div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="tag-zenotidata_tab" data-toggle="tab" href="#zenotidata_tab" role="tab"
+                aria-controls="home" aria-selected="true" onclick="return saveTabSelect(this)">Data from Zenoti</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-extendedzenotidata_tab" data-toggle="tab" href="#extendedzenotidata_tab" role="tab"
+                aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">Extended Data</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-leavedata_tab" data-toggle="tab" href="#leavedata_tab" role="tab"
+                aria-controls="leave" aria-selected="false" onclick="return saveTabSelect(this)">Leaves</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="zenotidata_tab" role="tabpanel" aria-labelledby="home-tab">
+            {% include 'employee_profile_tabs/zenotidata_tab.html' %}
+        </div>
+        <div class="tab-pane fade" id="extendedzenotidata_tab" role="tabpanel" aria-labelledby="profile-tab">
+            {% include 'employee_profile_tabs/extradata_tab.html' %}
+        </div>
+        <div class="tab-pane fade" id="leavedata_tab" role="tabpanel" aria-labelledby="leave-tab">
+            {% include 'employee_profile_tabs/leave_tab.html' %}
+        </div>
+    </div>
+</div>
+<!-- On Reload stay at previous tab -->
+<script>
+    // const client_id = "{{client.id}}";
+
+    // function redirectToDataUploader() {
+    //     $('cover-spin').show();
+    //     window.location.href = `/data-uploader/?client=${client_id}`
+    // }
+
+
+    // TODO add to session
+    function saveTabSelect(item) {
+        // var selectedTag = JSON.parse(sessionStorage.getItem('client_tag')) || null;
+        // sessionStorage.setItem('client_tag', JSON.stringify(storedProductList));
+        // var selectedTag = sessionStorage.getItem('client_tag') || null;
+        // sessionStorage.setItem('client_tag', storedProductList);
+        var prevSelectedTag = localStorage.getItem("curr_zenotidata_tag");
+        // console.log(`prevSelectedTag: `, prevSelectedTag);
+        if (item.id == prevSelectedTag) {
+            return;
+        }
+        if (prevSelectedTag) {
+            var element = document.getElementById(prevSelectedTag);
+            element.classList.remove("active");
+
+            var tabPaneId = `${prevSelectedTag.split("-")[1]}`;
+            // console.log(`tabPanId: `, tabPanId);
+            var tabePaneElement = document.getElementById(tabPaneId);
+            tabePaneElement.classList.remove('active');
+        }
+        localStorage.setItem("curr_zenotidata_tag", item.id);
+        // console.log(`cur tag id: `, item.id)
+        return true;
+    }
+
+    function retrieveSelected() {
+        var curTag = localStorage.getItem("curr_zenotidata_tag");
+        // console.log(`curTag: `, curTag);
+        if (curTag) {
+            var curElement = document.getElementById(`${curTag}`);
+            if (curElement) {
+                // revome active from first pill and tab in case there's any prev tag in local storage
+                var dataTag = document.getElementById('tag-zenotidata_tab');
+                dataTag.classList.remove("active");
+                var dataTabPaneElement = document.getElementById('zenotidata_tab');
+                dataTabPaneElement.classList.remove('active');
+
+                // Add active to tab
+                curElement.classList.add("active");
+                var curPaneId = `${curTag.split('-')[1]}`;
+                var curPaneElement = document.getElementById(curPaneId);
+                curPaneElement.classList.add('show');
+                curPaneElement.classList.add('active');
+
+                // const tab = $(curElement).data('tab_selected');
+                // window.location.href = `/clients/${client_id}/?tab=${tab}`;
+            } else {
+                // Else set in local storage the current active tab
+                localStorage.setItem("curr_zenotidata_tag", 'tag-zenotidata_tab');
+            }
+
+        } else {
+            // Else set in local storage the current active tab
+            localStorage.setItem("curr_zenotidata_tag", 'tag-zenotidata_tab');
+        }
+    }
+    retrieveSelected();
+
+</script>
+
+{% endblock %}

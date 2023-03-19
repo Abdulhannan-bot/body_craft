@@ -1,0 +1,64 @@
+{% load static %}
+<div class="p-4" id="extra_data_div">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">
+                <div class="row">
+                    <div class="col-md-6"> <strong>Opening Time</strong>
+                        <br>
+                        {{form.opening_time}}
+                    </div>
+                    <div class="col-md-6"> <strong>Closing Time</strong>
+                        <br>
+                        {{form.closing_time}}
+                    </div>
+                    <div class="col-md-6"> <strong>Closed on</strong>
+                        <br>
+                        {{form.closed_on}}
+                    </div>
+                    <div class="col-md-6"> <strong>KRAs</strong>
+                        <br>
+                        {{form.position}}
+                    </div>
+                    <div class="col-md-6">
+                        <br>
+                        {{form.center_status}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center mt-2">
+            <button class="btn btn-success" type="submit" name="extra_data_form">
+                Update
+            </button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+            $('#id_closed_on').select2({
+                dropdownAutoWidth: true,
+                multiple: true,
+                width: '100%',
+                height: '30px',
+                placeholder: "Select",
+                allowClear: true,
+                // dropdownParent: $('#extra_data_div')
+            });
+        });
+
+    $(document).ready(function () {
+            $('#id_position').select2({
+                dropdownAutoWidth: true,
+                multiple: true,
+                width: '100%',
+                height: '30px',
+                placeholder: "Select",
+                allowClear: true,
+                // dropdownParent: $('#extra_data_div')
+            });
+        });
+</script>

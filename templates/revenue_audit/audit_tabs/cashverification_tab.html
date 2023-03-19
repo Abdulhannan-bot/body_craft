@@ -1,0 +1,671 @@
+{% load mathfilters %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table no-wrap mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for one in all_cashverification_one %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{one.checklist|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    {{one.responsible_kra|default_if_none:''}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="user2_{{one.id}}" id="cashverification_responsible_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if one.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td>
+                                <span class="text-muted">
+                                    <input class="form-control" type="text" value="{{one.relative_gap_found|default_if_none:''}}" id="cashverification_relativegap_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" readonly name="" id="cash_compliance_one_{{forloop.counter}}" value="{{one.compliance|default_if_none:''}}">
+                                </span>
+                            </td>
+                        </tr>
+                        <input type="hidden" name="" value="{{one.id}}" id="cashverification_one_{{forloop.counter}}"> 
+                        {% endfor %} 
+                        {% for two in all_cashverification_two %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{two.checklist|default_if_none:'' }}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{two.responsible_kra|default_if_none:''}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="user2_{{two.id}}" id="cash_responsible_two_{{forloop.counter}}">
+                                        <option value="">Select</option> {% for emp in all_employee %} <option {% if two.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td>
+                                <span class="text-muted">
+                                    <input class="form-control" type="text" value="{{two.relative_gap_found|default_if_none:''}}" id="cash_relativegap_two_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="cash_compliance_two_{{forloop.counter}}">
+                                        <option value=""></option>
+                                        <option {% if two.compliance == 'Followed' %} selected {% endif %} value="Followed">Followed</option>
+                                        <option {% if two.compliance == 'Not Followed' %} selected {% endif %} value="Not Followed">Not Followed</option>
+                                    </select>
+                                </span>
+                            </td>
+                        </tr>
+                        <input type="hidden" name="" value="{{two.id}}" id="cashverification_two_{{forloop.counter}}"> {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width:30%;"> Details </th>
+                            <th scope="col" class="border-0 text-bold" style="width:8%;"> As per Zenoti </th>
+                            <th scope="col" class="border-0 text-bold" style="width:8%;"> Physical Counter / Dashboard </th>
+                            <th scope="col" class="border-0 text-bold" style="width:8%;"> Difference </th>
+                            <th scope="col" class="border-0 text-bold" style="width:10%;"> Reconciliation </th>
+                            <th scope="col" class="border-0 text-bold"> Remarks </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(208, 248, 248);"> 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    Physical cash verification
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.physical_cash_as_per_zenoti}}" id="zenoti_1" onchange="get_cash_difference(this)">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" readonly type="number" value="{{revenue_audit.physical_cash_as_per_counter}}" id="dashboard_1">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" readonly type="number" 
+                                    value="{{ revenue_audit.physical_cash_as_per_zenoti|default_if_none:0|sub:revenue_audit.physical_cash_as_per_counter|default_if_none:0 }}" 
+                                    id="difference_1">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" id="reconciliation_1">
+                                        <option value=""></option>
+                                        <option {% if revenue_audit.physical_cash_reconciliation == '1' %} selected {% endif %} value="1">Option 1</option>
+                                        <option {% if revenue_audit.physical_cash_reconciliation == '2' %} selected {% endif %} value="2">Option 2</option>
+                                        <option {% if revenue_audit.physical_cash_reconciliation == '3' %} selected {% endif %} value="3">Option 3</option>
+                                    </select>
+                                    <!-- <input class="form-control" type="number" value="{{revenue_audit.physical_cash_reconciliation}}" id="reconciliation_1" onchange="get_cash_difference(this)"> -->
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{revenue_audit.physical_cash_remark|default_if_none:''}}" id="cashverification_remark_1">
+                                </span>
+                            </td>
+                        </tr> 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    Physical card verification
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.physcial_card_as_per_zenoti}}" id="zenoti_2" onchange="get_cash_difference(this)">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.physcial_card_as_per_counter}}" id="dashboard_2" onchange="get_cash_difference(this)">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" readonly type="number" id="difference_2"
+                                    value="{{ revenue_audit.physcial_card_as_per_zenoti|default_if_none:0|sub:revenue_audit.physcial_card_as_per_counter|default_if_none:0 }}" >
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" id="reconciliation_2">
+                                        <option value=""></option>
+                                        <option {% if revenue_audit.physcial_card_reconciliation == '1' %} selected {% endif %} value="1">Option 1</option>
+                                        <option {% if revenue_audit.physcial_card_reconciliation == '2' %} selected {% endif %} value="2">Option 2</option>
+                                        <option {% if revenue_audit.physcial_card_reconciliation == '3' %} selected {% endif %} value="3">Option 3</option>
+                                    </select>
+                                    <!-- <input class="form-control" type="number" value="{{revenue_audit.physcial_card_reconciliation}}" id="reconciliation_2" onchange="get_cash_difference(this)"> -->
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{revenue_audit.physical_card_remark|default_if_none:''}}" id="cashverification_remark_2">
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    Custom verification
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.custom_verification_as_per_zenoti}}" id="zenoti_3" onchange="get_cash_difference(this)">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.custom_verification_as_per_counter}}" id="dashboard_3" onchange="get_cash_difference(this)">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input class="form-control" readonly type="number" id="difference_3"
+                                    value="{{ revenue_audit.custom_verification_as_per_zenoti|default_if_none:0|sub:revenue_audit.custom_verification_as_per_counter|default_if_none:0 }}" >
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" id="reconciliation_3">
+                                        <option value=""></option>
+                                        <option {% if revenue_audit.custom_verification_reconciliation == '1' %} selected {% endif %} value="1">Option 1</option>
+                                        <option {% if revenue_audit.custom_verification_reconciliation == '2' %} selected {% endif %} value="2">Option 2</option>
+                                        <option {% if revenue_audit.custom_verification_reconciliation == '3' %} selected {% endif %} value="3">Option 3</option>
+                                    </select>
+                                    <!-- <input class="form-control" type="number" value="{{revenue_audit.custom_verification_reconciliation}}" id="reconciliation_3" onchange="get_cash_difference(this)"> -->
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" value="{{revenue_audit.custom_verification_remark|default_if_none:''}}" id="cashverification_remark_3">
+                                </span>
+                            </td>
+                        </tr>
+                        <input type="hidden" name="" value="{{revenue_audit.id}}" id="cash_verification_audit_id">
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <h3 class="bold">Denomination</h3>
+            <div class="row">
+                <div class="col-6">
+                    <div class="table-responsive">
+                        <table class="table no-wrap user-table mb-0">
+                            <thead class="text-white" style="background-color: rgb(151 112 112);">
+                                <tr>
+                                    <th scope="col" class="border-0 text-bold" style="width:10%;"> Type </th>
+                                    <th scope="col" class="border-0 text-bold" style="width:10%;"> Count </th>
+                                    <th scope="col" class="border-0 text-bold" style="width:10%;"> Amount </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 2000 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_2000|default_if_none:''}}" id="count_2000_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_2000|mul:2000}}" id="amount_2000_1" readonly>
+
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 500 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_500|default_if_none:''}}" id="count_500_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_500_1" readonly
+                                            value="{{all_cashverification_cash_count.count_500|mul:500}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 200 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_200|default_if_none:''}}" id="count_200_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_200_1" readonly
+                                            value="{{all_cashverification_cash_count.count_200|mul:200}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 100 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_100|default_if_none:''}}" id="count_100_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_100_1" readonly
+                                            value="{{all_cashverification_cash_count.count_100|mul:100}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 50 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_50|default_if_none:''}}" id="count_50_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_50_1" readonly
+                                            value="{{all_cashverification_cash_count.count_50|mul:50}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 20 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_20|default_if_none:''}}" id="count_20_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_20_1" readonly
+                                            value="{{all_cashverification_cash_count.count_20|mul:20}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 10 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_10|default_if_none:''}}" id="count_10_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_10_1" readonly
+                                            value="{{all_cashverification_cash_count.count_10|mul:10}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 5 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_5|default_if_none:''}}" id="count_5_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_5_1" readonly
+                                            value="{{all_cashverification_cash_count.count_5|mul:5}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 2 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_2|default_if_none:''}}" id="count_2_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_2_1" readonly
+                                            value="{{all_cashverification_cash_count.count_2|mul:2}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 1 </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_1|default_if_none:''}}" id="count_1_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_1_1" readonly
+                                            value="{{all_cashverification_cash_count.count_1|mul:1}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="white-space: normal;">
+                                        <span class=""> 50p </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" value="{{all_cashverification_cash_count.count_50p|default_if_none:''}}" id="count_50p_1" onchange="get_cash_amount(this)">
+                                        </span>
+                                    </td>
+                                    <td style="white-space: normal;">
+                                        <span class="">
+                                            <input class="form-control" type="number" id="amount_50p_1" readonly
+                                            value="{{all_cashverification_cash_count.count_50p|mul:0.5}}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <input type="hidden" name="" value="{{all_cashverification_cash_count.id}}" id="cash_count_id">
+                            </tbody>
+                        </table>
+                    </div> 
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_cash_verification_data()">Update</button>
+        </div>
+    </div>
+</div>
+<script>
+    function get_cash_amount(){
+        var count_2000 = document.getElementById('count_2000_1').value;
+        var count_500 = document.getElementById('count_500_1').value;
+        var count_200 = document.getElementById('count_200_1').value;
+        var count_100 = document.getElementById('count_100_1').value;
+        var count_50 = document.getElementById('count_50_1').value;
+        var count_20 = document.getElementById('count_20_1').value;
+        var count_10 = document.getElementById('count_10_1').value;
+        var count_5 = document.getElementById('count_5_1').value;
+        var count_2 = document.getElementById('count_2_1').value;
+        var count_1 = document.getElementById('count_1_1').value;
+        var count_50p = document.getElementById('count_50p_1').value;
+        var total_amount = 0
+        if(count_2000.length > 0){
+            document.getElementById('amount_2000_1').value = count_2000*2000;
+            total_amount += count_2000 * 2000;
+        }else{
+            document.getElementById('amount_2000_1').value = ''
+        }
+
+        if (count_500.length > 0) {
+            document.getElementById('amount_500_1').value = count_500 * 500;
+            total_amount += count_500 * 500;
+        } else {
+            document.getElementById('amount_500_1').value = ''
+        }
+
+        if (count_200.length > 0) {
+            document.getElementById('amount_200_1').value = count_200 * 200;
+            total_amount += count_200 * 200;
+        } else {
+            document.getElementById('amount_200_1').value = ''
+        }
+
+        if (count_100.length > 0) {
+            document.getElementById('amount_100_1').value = count_100 * 100;
+            total_amount += count_100 * 100;
+        } else {
+            document.getElementById('amount_100_1').value = ''
+        }
+
+        if (count_50.length > 0) {
+            document.getElementById('amount_50_1').value = count_50 * 50;
+            total_amount += count_50 * 50;
+        } else {
+            document.getElementById('amount_50_1').value = ''
+        }
+
+        if (count_20.length > 0) {
+            document.getElementById('amount_20_1').value = count_20 * 20;
+            total_amount += count_20 * 20;
+        } else {
+            document.getElementById('amount_20_1').value = ''
+        }
+
+        if (count_10.length > 0) {
+            document.getElementById('amount_10_1').value = count_10 * 10;
+            total_amount += count_10 * 10;
+        } else {
+            document.getElementById('amount_10_1').value = ''
+        }
+
+        if (count_5.length > 0) {
+            document.getElementById('amount_5_1').value = count_5 * 5;
+            total_amount += count_5 * 5;
+        } else {
+            document.getElementById('amount_5_1').value = ''
+        }
+
+        if (count_2.length > 0) {
+            document.getElementById('amount_2_1').value = count_2 * 2;
+            total_amount += count_2 * 2;
+        } else {
+            document.getElementById('amount_2_1').value = ''
+        }
+
+        if (count_1.length > 0) {
+            document.getElementById('amount_1_1').value = count_1 * 1;
+            total_amount += count_1 * 1;
+        } else {
+            document.getElementById('amount_1_1').value = ''
+        }
+
+        if (count_50p.length > 0) {
+            document.getElementById('amount_50p_1').value = count_50p * 0.5;
+            total_amount += count_50p * 0.5;
+        } else {
+            document.getElementById('amount_50p_1').value = ''
+        }
+
+        if(total_amount){
+            document.getElementById('dashboard_1').value = total_amount;
+        }
+        
+    }
+    function get_cash_difference(t){
+        var physical_cash_as_per_zenoti = document.getElementById('zenoti_1').value;
+        var physical_cash_as_per_dashboard = document.getElementById('dashboard_1').value;
+        // var physical_cash_reconciliation = document.getElementById('reconciliation_1').value;
+        var physical_card_as_per_zenoti = document.getElementById('zenoti_2').value;
+        var physical_card_as_per_dashboard = document.getElementById('dashboard_2').value;
+        // var physical_card_reconciliation = document.getElementById('reconciliation_2').value;
+        var custom_as_per_zenoti = document.getElementById('zenoti_3').value;
+        var custom_as_per_dashboard = document.getElementById('dashboard_3').value;
+        // var custom_reconciliation = document.getElementById('reconciliation_3').value;
+
+        var physical_cash_difference = physical_cash_as_per_zenoti - physical_cash_as_per_dashboard;
+        // var physical_cash_net_difference = physical_cash_difference - physical_cash_reconciliation;
+        var physical_card_difference = physical_card_as_per_zenoti - physical_card_as_per_dashboard;
+        // var physical_card_net_difference = physical_card_difference - physical_card_reconciliation;
+        var custom_difference = custom_as_per_zenoti - custom_as_per_dashboard;
+        // var custom_net_difference = custom_difference - custom_reconciliation;
+
+        document.getElementById('difference_1').value = physical_cash_difference;
+        // var cash_net_difference = document.getElementById('netdifference_1').value = physical_cash_net_difference;
+        document.getElementById('difference_2').value = physical_card_difference;
+        // var card_net_difference = document.getElementById('netdifference_2').value = physical_card_net_difference;
+        document.getElementById('difference_3').value = custom_difference;
+        // var custom_net_difference_val = document.getElementById('netdifference_3').value = custom_net_difference;
+        
+        if(physical_cash_as_per_zenoti > 0){
+            if(physical_cash_difference == 0){
+                document.getElementById('cash_compliance_one_1').value = 'Followed';
+            }else{
+                 document.getElementById('cash_compliance_one_1').value = 'Not Followed'
+            }
+        }
+        if(physical_card_as_per_zenoti >0){
+            if (physical_card_difference == 0) {
+                document.getElementById('cash_compliance_one_2').value = 'Followed';
+            } else {
+                document.getElementById('cash_compliance_one_2').value = 'Not Followed'
+            }
+        }
+        if(custom_as_per_zenoti > 0){
+            if (custom_difference == 0) {
+                document.getElementById('cash_compliance_one_3').value = 'Followed';
+            } else {
+                document.getElementById('cash_compliance_one_3').value = 'Not Followed'
+            }
+        }
+        // var uid = t.id.split('_')[1]
+        // var as_zenoti = document.getElementById('zenoti_'+uid).value;
+        // document.getElementById('difference_'+uid).value = as_zenoti-dashboard_value;
+
+    }
+
+    function edit_all_cash_verification_data() {
+        $('#cover-spin').show(0);
+        var salon_audit_data = [];
+        var cash_one_list = [];
+        var cash_two_list = [];
+        var cash_count_list = [];
+        
+        var data_obj = {}
+        data_obj['cash_as_zenoti'] = document.getElementById('zenoti_1').value;
+        data_obj['cash_dashboard'] = document.getElementById('dashboard_1').value;
+        data_obj['cash_reconciliation'] = document.getElementById('reconciliation_1').value;
+        data_obj['remark_1'] = document.getElementById('cashverification_remark_1').value;
+        data_obj['card_as_zenoti'] = document.getElementById('zenoti_2').value;
+        data_obj['card_dashboard'] = document.getElementById('dashboard_2').value;
+        data_obj['card_reconciliation'] = document.getElementById('reconciliation_2').value;
+        data_obj['remark_2'] = document.getElementById('cashverification_remark_2').value;
+        data_obj['custom_as_zenoti'] = document.getElementById('zenoti_3').value;
+        data_obj['custom_dashboard'] = document.getElementById('dashboard_3').value;
+        data_obj['custom_reconciliation'] = document.getElementById('reconciliation_3').value;
+        data_obj['remark_3'] = document.getElementById('cashverification_remark_3').value;
+        data_obj['id'] = document.getElementById('cash_verification_audit_id').value;
+        salon_audit_data.push(data_obj);
+
+        for(var i=0; i<3; i++){
+            var loop_id = i+1;
+            var cash_one_obj = {}
+            cash_one_obj['person_responsible'] = document.getElementById('cashverification_responsible_'+loop_id).value;
+            // cash_one_obj['relative_gap'] = document.getElementById('cashverification_relativegap_'+loop_id).value;
+            cash_one_obj['compliance'] = document.getElementById('cash_compliance_one_'+loop_id).value;
+            cash_one_obj['id'] = document.getElementById('cashverification_one_'+loop_id).value;
+            cash_one_list.push(cash_one_obj);
+        }
+        
+        var cash_two_obj = {}
+        cash_two_obj['person_responsible'] = document.getElementById('cash_responsible_two_1').value;
+        // cash_two_obj['relative_gap'] = document.getElementById('cash_relativegap_two_1').value;
+        cash_two_obj['compliance'] = document.getElementById('cash_compliance_two_1').value;
+        cash_two_obj['id'] = document.getElementById('cashverification_two_1').value;
+        cash_two_list.push(cash_two_obj);
+
+        var cash_count_obj ={}
+        cash_count_obj['count_2000'] = document.getElementById('count_2000_1').value;
+        cash_count_obj['count_500'] = document.getElementById('count_500_1').value;
+        cash_count_obj['count_200'] = document.getElementById('count_200_1').value;
+        cash_count_obj['count_100'] = document.getElementById('count_100_1').value;
+        cash_count_obj['count_50'] = document.getElementById('count_50_1').value;
+        cash_count_obj['count_20'] = document.getElementById('count_20_1').value;
+        cash_count_obj['count_10'] = document.getElementById('count_10_1').value;
+        cash_count_obj['count_5'] = document.getElementById('count_5_1').value;
+        cash_count_obj['count_2'] = document.getElementById('count_2_1').value;
+        cash_count_obj['count_1'] = document.getElementById('count_1_1').value;
+        cash_count_obj['count_50p'] = document.getElementById('count_50p_1').value;
+        cash_count_obj['id'] = document.getElementById('cash_count_id').value;
+        cash_count_list.push(cash_count_obj);
+
+
+
+        fetch("/edit_audit_cashverification/", {
+            method: "POST",
+            body: JSON.stringify({
+                'salon_audit': salon_audit_data,
+                'one_data_obj': cash_one_list,
+                'two_data_obj': cash_two_list,
+                'cash_count_obj': cash_count_list,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>

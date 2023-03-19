@@ -1,0 +1,248 @@
+<div class="row p-4">
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 12%"> Center </th>
+                <th style="width: 12%"> Detail </th>
+                <th style="width: 20%"> Checklist </th>
+                <th style="width: 10%"> Compliance Category</th>
+                <th style="width: 15%">User Responsible</th>
+                <th style="width: 20%"> Auditor Remarks </th>
+                <th style="width: 11%"> Status</th>
+            </tr>
+        </thead>
+        <tbody> 
+            {% for detail in all_revenue_audit_detail %} 
+            <tr data-toggle="collapse" data-target="#revenue_audit_{{detail.id}}" class="accordion-toggle">
+                <td style="white-space: normal;">
+                    <span class="text-muted">
+                        {{detail.revenue_audit.center|default_if_none:'' }} <br>
+                        {{detail.revenue_audit.date|default_if_none:'' }}
+                    </span>
+                </td>
+                <td style="white-space: normal;">
+                    <span class="text-muted">
+                        {{detail.responsible_kra|default_if_none:'' }}
+                    </span>
+                </td>
+                <td style="white-space: normal;">
+                    <span class="text-muted">
+                        {{detail.checklist|default_if_none:'' }}
+                    </span>
+                </td>
+                <td style="white-space: normal;"> {% if detail.compliance_category %} <span class="badge badge-primary">
+                        {{detail.compliance_category|default_if_none:'' }}
+                    </span> {% endif %} <br> {% if detail.compliance_category_percentage %} <span class="badge badge-info">
+                        {{detail.compliance_category_percentage|default_if_none:''}}% </span> {% endif %} </td>
+                <td>
+                    <span class="text-muted">
+                        {{detail.person_responsible.zenoti_data.employee_name|default_if_none:''}}
+                    </span>
+                </td>
+                <td style="white-space: normal;">
+                    <span class="text-muted">
+                        {{detail.relative_gap_found|default_if_none:'' }}
+                    </span>
+                </td>
+                <td>
+                    <span class="text-muted">
+                        <span> OM: <span id="om_{{detail.id}}" class="badge badge-info">{{detail.status_by_om|default_if_none:'' }}</span>
+                        </span>
+                        <br>
+                        <span> Dept: <span id="department_{{detail.id}}" class="badge badge-info">{{detail.status_by_department|default_if_none:''}}</span>
+                        </span>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="7" class="hiddenRow">
+                    <div id="revenue_audit_{{detail.id}}" class="accordion-body collapse">
+                        <div class="p-4" style="background-color: aqua;">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group mb-4">
+                                        <label class="mr-sm-2" for="inlineFormCustomSelect">Action taken By Outlet Manager</label>
+                                        <select class="form-control" name="action_outlet" id="action_outlet_{{detail.id}}">
+                                            <option value="">Select</option>
+                                            <option {% if detail.action_taken_by_outlet_manager == 'Resource shortage' %} selected {% endif %} value="Resource shortage">Resource shortage</option>
+                                            <option {% if detail.action_taken_by_outlet_manager == 'Facility issue' %} selected {% endif %} value="Facility issue">Facility issue</option>
+                                            <option {% if detail.action_taken_by_outlet_manager == 'Verbal Warning' %} selected {% endif %} value="Verbal Warning">Verbal Warning</option>
+                                            <option {% if detail.action_taken_by_outlet_manager == 'Education' %} selected {% endif %} value="Education">Education</option>
+                                            <option {% if detail.action_taken_by_outlet_manager == 'PIP Connect' %} selected {% endif %} value="PIP Connect">PIP Connect</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group mb-4">
+                                        <label class="mr-sm-2" for="inlineFormCustomSelect">Status by OM</label>
+                                        <select class="form-control" name="status_om" id="status_om_{{detail.id}}">
+                                            <option value="">Select</option>
+                                            <option {% if detail.status_by_om == 'Open' %} selected {% endif %} value="Open">Open</option>
+                                            <option {% if detail.status_by_om == 'Closed' %} selected {% endif %} value="Closed">Closed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label class="mr-sm-2" for="inlineFormCustomSelect">Remark by OM</label>
+                                    <input type="text" class="form-control" name="remark_om" value="{{detail.remark_by_om|default_if_none:''}}" id="remark_om_{{detail.id}}">
+                                </div>
+                                <div class="col">
+                                    <label class="mr-sm-2" for="inlineFormCustomSelect">Action Taken By Management</label>
+                                    <select {% if staffProfile.user_type == 'staff' %}disabled{% endif %} class="form-control" name="action_management" id="action_management_{{detail.id}}">
+                                        <option value="">Select</option>
+                                        <option {% if detail.action_taken_by_management == 'Verbal Warning' %} selected {% endif %} value="Verbal Warning"> Verbal Warning </option>
+                                        <option {% if detail.action_taken_by_management == 'Warning Letter' %} selected {% endif %} value="Warning Letter"> Warning Letter </option>
+                                        <option {% if detail.action_taken_by_management == 'Process Improvement' %} selected {% endif %} value="Process Improvement">Process Improvement</option>
+                                        <option {% if detail.action_taken_by_management == 'Non compliance-Incentive deduction' %} selected {% endif %} value="Non compliance-Incentive deduction">Non compliance-Incentive deduction</option>
+                                        <option {% if detail.action_taken_by_management == 'PIP Connect' %} selected {% endif %} value="PIP Connect">PIP Connect</option>
+                                        <option {% if detail.action_taken_by_management == 'Education' %} selected {% endif %} value="Education">Education</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label class="mr-sm-2" for="inlineFormCustomSelect">Remark By Management</label>
+                                    <input {% if staffProfile.user_type == 'staff' %} readonly {% endif %} type="text" class="form-control" name="remark_management" value="{{detail.remark_by_management|default_if_none:''}}" id="remark_management_{{detail.id}}">
+                                </div>
+                                <div class="col">
+                                    <label class="mr-sm-2" for="inlineFormCustomSelect">Expected Dept/Personnel to Intervene</label>
+                                    <select {% if staffProfile.user_type == 'staff' %} disabled {% endif %} class="form-control" name="expected_intervene" id="expected_intervene_{{detail.id}}">
+                                        <option value="">Select</option>
+                                        <option {% if detail.expected_dept_intervene == 'OM' %} selected {% endif %} value="OM">OM</option>
+                                        <option {% if detail.expected_dept_intervene == 'POC' %} selected {% endif %} value="POC">POC</option>
+                                        <option {% if detail.expected_dept_intervene == 'TAM' %} selected {% endif %} value="TAM">TAM</option>
+                                        <option {% if detail.expected_dept_intervene == 'SLD-Salon' %} selected {% endif %} value="SLD-Salon">SLD-Salon</option>
+                                        <option {% if detail.expected_dept_intervene == 'SLD-Skin' %} selected {% endif %} value="SLD-Skin">SLD-Skin</option>
+                                        <option {% if detail.expected_dept_intervene == 'Management' %} selected {% endif %} value="Management">Management</option>
+                                        <option {% if detail.expected_dept_intervene == 'Procurement' %} selected {% endif %} value="Procurement">Procurement</option>
+                                        <option {% if detail.expected_dept_intervene == 'Facility Management' %} selected {% endif %} value="Facility Management">Facility Management</option>
+                                        <option {% if detail.expected_dept_intervene == 'Marketing' %} selected {% endif %} value="Marketing">Marketing</option>
+                                        <option {% if detail.expected_dept_intervene == 'Finance & Accounts' %} selected {% endif %} value="Finance & Accounts">Finance & Accounts</option>
+                                        <option {% if detail.expected_dept_intervene == 'CRM' %} selected {% endif %} value="CRM"> CRM</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label class="mr-sm-2" for="inlineFormCustomSelect">Remark By Department</label>
+                                    <input {% if staffProfile.user_type == 'staff' %} readonly {% endif %} type="text" class="form-control" value="{{detail.remark_by_department|default_if_none:''}}" name="remark_department" id="remark_department_{{detail.id}}">
+                                </div>
+                                <div class="col">
+                                    <label class="mr-sm-2" for="inlineFormCustomSelect">Status By Department</label>
+                                    <select {% if staffProfile.user_type == 'staff' %} disabled {% endif %} class="form-control" name="status_department" id="status_department_{{detail.id}}">
+                                        <option value="">Select</option>
+                                        <option {% if detail.status_by_department == 'Open' %} selected {% endif %} value="Open">Open</option>
+                                        <option {% if detail.status_by_department == 'Closed' %} selected {% endif %} value="Closed">Closed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center mt-2">
+                                <button class="btn btn-success" id="btn_{{detail.id}}" type="button" 
+                                onclick="edit_extra_clinic_audit_data(this)">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div> {% if all_revenue_audit_detail.paginator.num_pages > 1%} <!-- Paginator -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not all_revenue_audit_detail.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="?page_2=1{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" tabindex="-1">FIRST</a>
+            </li>
+            <li class="page-item {% if not all_revenue_audit_detail.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="{% if all_revenue_audit_detail.has_previous %}?page_2={{ all_revenue_audit_detail.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %} " tabindex="-1"> &laquo;</a>
+            </li> {% if all_revenue_audit_detail.number|add:'-4' > 1 %} <li class="page-item disabled">
+                <a class="page-link" href="?page_2={{ all_revenue_audit_detail.number|add:'-5' }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+            </li> {% endif %} {% for i in all_revenue_audit_detail.paginator.page_range %} {% if all_revenue_audit_detail.number == i %} <li class="active page-item current ">
+                <a class="page-link" href="?page_2={{ i }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+            </li> {% elif i > all_revenue_audit_detail.number|add:'-5' and i < all_revenue_audit_detail.number|add:'5' %} <li class="page-item">
+                <a class="page-link" href="?page_2={{ i }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                </li> {% endif %} {% endfor %} {% if all_revenue_audit_detail.paginator.num_pages > all_revenue_audit_detail.number|add:'4' %} <li class="page-item disabled">
+                    <a class="page-link" href="?page_2={{ all_revenue_audit_detail.number|add:'5' }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&hellip;</a>
+                </li> {% endif %} <li class="page-item {% if not all_revenue_audit_detail.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_revenue_audit_detail.has_next %} ?page_2={{ all_revenue_audit_detail.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">&raquo;</a>
+                </li>
+                <li class="page-item {% if not all_revenue_audit_detail.has_next %} disabled {% endif %}">
+                    <a class="page-link" href="{% if all_revenue_audit_detail.has_next %} ?page_2={{ all_revenue_audit_detail.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page_2' %}&{{ key }}={{ value }}{% endif %}{% endfor %} {% endif %}">LAST</a>
+                </li>
+        </ul>
+    </nav> {% endif %}
+</div>
+<script>
+    function edit_extra_clinic_audit_data(t) {
+        $('#cover-spin').show(0);
+        var btn_id = t.id.split('_')[1];
+        var action_outlet_manager = document.getElementById('action_outlet_' + btn_id).value;
+        var status_om = document.getElementById('status_om_' + btn_id).value;
+        var remark_om = document.getElementById('remark_om_' + btn_id).value;
+        var action_management = document.getElementById('action_management_' + btn_id).value;
+        var remark_management = document.getElementById('remark_management_' + btn_id).value;
+        var except_intervene = document.getElementById('expected_intervene_' + btn_id).value;
+        var remark_department = document.getElementById('remark_department_' + btn_id).value;
+        var status_department = document.getElementById('status_department_' + btn_id).value;
+        var final_list = [];
+
+        try {
+            salon_audit_query = {
+                "audit_id": btn_id,
+                "action_outlet": action_outlet_manager,
+                "status_om": status_om,
+                "remark_om": remark_om,
+                "action_management": action_management,
+                "remark_management": remark_management,
+                "except_intervene": except_intervene,
+                "remark_department": remark_department,
+                "status_department": status_department
+            }
+            if (salon_audit_query.audit_id.length > 0) {
+                // console.log('id', scheduler_query.from_dt, scheduler_query.to_dt, scheduler_query.center);
+                final_list.push(salon_audit_query);
+            } else {
+                $('#cover-spin').hide(0);
+                alert('Something Went Wrong, please try again after refreshing the page');
+            }
+
+        } catch (e) { }
+        // console.log(final_list)
+        fetch("/edit_clinic_audit_extra_data/", {
+            method: "POST",
+            body: JSON.stringify({
+                'data_obj': final_list,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    $('#cover-spin').hide(0);
+                    if (status_department) {
+                        document.getElementById('department_' + btn_id).innerHTML = status_department;
+                    }
+                    if (status_om) {
+                        document.getElementById('om_' + btn_id).innerHTML = status_om;
+                    }
+                    $('#revenue_audit_' + btn_id).collapse('hide');
+                    // $('#details_'+btn_id).stopPropagation()
+                }
+                else {
+                    $('#cover-spin').hide(0);
+                    alert('Something went wrong, Please try again after refreshing the page')
+                }
+            });
+    }
+</script>

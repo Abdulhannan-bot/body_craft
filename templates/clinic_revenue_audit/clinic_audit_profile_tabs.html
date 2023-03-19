@@ -1,0 +1,123 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block breadcrumb %} 
+<h5 class="text-primary mb-0" style="font-weight: bold;">Clinic Revenue Audit Detail</h5> 
+{% endblock breadcrumb %} 
+{% block content %} 
+<div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="tag-allclinicsummary_tab" data-toggle="tab" href="#allclinicsummary_tab" role="tab" aria-controls="home" aria-selected="true" onclick="return saveTabSelect(this)">All</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-discount_cases" data-toggle="tab" href="#discount_cases" role="tab" aria-controls="discountcases" aria-selected="true" onclick="return saveTabSelect(this)">Discount Cases</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-membership_redemption" data-toggle="tab" href="#membership_redemption" role="tab" aria-controls="openbill" aria-selected="false" onclick="return saveTabSelect(this)">Membership Redemption</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-hygiene_check" data-toggle="tab" href="#hygiene_check" role="tab" aria-controls="profile" aria-selected="false" onclick="return saveTabSelect(this)">Hygiene Check</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-not_redeemed" data-toggle="tab" href="#not_redeemed" role="tab" aria-controls="notredeemed" aria-selected="false" onclick="return saveTabSelect(this)">Not redeemed</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-deleted_services" data-toggle="tab" href="#deleted_services" role="tab" aria-controls="deletedservices" aria-selected="false" onclick="return saveTabSelect(this)">Deleted Services</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-rectification_bill" data-toggle="tab" href="#rectification_bill" role="tab" aria-controls="rectificationbill" aria-selected="false" onclick="return saveTabSelect(this)">Rectification Bill</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tag-other_observation" data-toggle="tab" href="#other_observation" role="tab" aria-controls="otherobservation" aria-selected="false" onclick="return saveTabSelect(this)">Other Observation</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="allclinicsummary_tab" role="tabpanel" aria-labelledby="home-tab"> 
+            {% include 'clinic_revenue_audit/profile_tabs/all_tab.html' %} </div>
+        <div class="tab-pane fade" id="discount_cases" role="tabpanel" aria-labelledby="discountcases-tab"> 
+            {% include 'clinic_revenue_audit/profile_tabs/discount_cases_tab.html' %} </div>
+        <div class="tab-pane fade" id="membership_redemption" role="tabpanel" aria-labelledby="profile-tab"> 
+            {% include 'clinic_revenue_audit/profile_tabs/membership_redemption_tab.html' %} </div>
+        <div class="tab-pane fade" id="hygiene_check" role="tabpanel" aria-labelledby="openbill-tab"> 
+            {% include 'clinic_revenue_audit/profile_tabs/hygiene_check_tab.html' %} </div>
+        <div class="tab-pane fade" id="not_redeemed" role="tabpanel" aria-labelledby="notredeemed-tab"> 
+            {% include 'clinic_revenue_audit/profile_tabs/not_redeemed_tab.html' %} 
+        </div>
+        <div class="tab-pane fade" id="deleted_services" role="tabpanel" aria-labelledby="deletedservices-tab"> 
+            {% include 'clinic_revenue_audit/profile_tabs/deleted_services_tab.html' %} </div>
+        <div class="tab-pane fade" id="rectification_bill" role="tabpanel" aria-labelledby="rectificationbill-tab"> 
+            {% include 'clinic_revenue_audit/profile_tabs/rectification_bill_tab.html' %} </div>
+        <div class="tab-pane fade" id="other_observation" role="tabpanel" aria-labelledby="otherobservation-tab"> 
+            {% include 'clinic_revenue_audit/profile_tabs/other_observation_tab.html' %} </div>
+    </div>
+</div>
+<!-- On Reload stay at previous tab -->
+<script>
+    // const client_id = "{{client.id}}";
+
+    // function redirectToDataUploader() {
+    //     $('cover-spin').show();
+    //     window.location.href = `/data-uploader/?client=${client_id}`
+    // }
+
+
+    // TODO add to session
+    function saveTabSelect(item) {
+        // var selectedTag = JSON.parse(sessionStorage.getItem('client_tag')) || null;
+        // sessionStorage.setItem('client_tag', JSON.stringify(storedProductList));
+        // var selectedTag = sessionStorage.getItem('client_tag') || null;
+        // sessionStorage.setItem('client_tag', storedProductList);
+        var prevSelectedTag = localStorage.getItem("curr_allclinicsummary_tag");
+        // console.log(`prevSelectedTag: `, prevSelectedTag);
+        if (item.id == prevSelectedTag) {
+            return;
+        }
+        if (prevSelectedTag) {
+            var element = document.getElementById(prevSelectedTag);
+            element.classList.remove("active");
+
+            var tabPaneId = `${prevSelectedTag.split("-")[1]}`;
+            // console.log(`tabPanId: `, tabPanId);
+            var tabePaneElement = document.getElementById(tabPaneId);
+            tabePaneElement.classList.remove('active');
+        }
+        localStorage.setItem("curr_allclinicsummary_tag", item.id);
+        // console.log(`cur tag id: `, item.id)
+        return true;
+    }
+
+    function retrieveSelected() {
+        var curTag = localStorage.getItem("curr_allclinicsummary_tag");
+        // console.log(`curTag: `, curTag);
+        if (curTag) {
+            var curElement = document.getElementById(`${curTag}`);
+            if (curElement) {
+                // revome active from first pill and tab in case there's any prev tag in local storage
+                var dataTag = document.getElementById('tag-allclinicsummary_tab');
+                dataTag.classList.remove("active");
+                var dataTabPaneElement = document.getElementById('allclinicsummary_tab');
+                dataTabPaneElement.classList.remove('active');
+
+                // Add active to tab
+                curElement.classList.add("active");
+                var curPaneId = `${curTag.split('-')[1]}`;
+                var curPaneElement = document.getElementById(curPaneId);
+                curPaneElement.classList.add('show');
+                curPaneElement.classList.add('active');
+
+                // const tab = $(curElement).data('tab_selected');
+                // window.location.href = `/clients/${client_id}/?tab=${tab}`;
+            } else {
+                // Else set in local storage the current active tab
+                localStorage.setItem("curr_allclinicsummary_tag", 'tag-allclinicsummary_tab');
+            }
+
+        } else {
+            // Else set in local storage the current active tab
+            localStorage.setItem("curr_allclinicsummary_tag", 'tag-allclinicsummary_tab');
+        }
+    }
+    retrieveSelected();
+
+</script> 
+{% endblock %}

@@ -1,0 +1,53 @@
+{% load static %}
+<div class="p-4">
+    <div>
+        <h2><span class="badge badge-secondary">{{center_detail.display_name}}'s data from Zenoti</span></h2>
+        <br>
+        <div class="row">
+            <div class="col">
+                <div class="row">
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Center Id</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.zenoticenterId}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Center Name</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.name}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Display Name</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.display_name}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Code</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.code}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Address 1</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.address_1}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Address 2</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.address_2}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>City</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.city}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Zip Code</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.zip_code}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>State</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.state}}</p>
+                    </div>
+                    <div class="col-md-6 col-xs-6 b-r"> <strong>Country</strong>
+                        <br>
+                        <p class="text-muted">{{center_detail.country}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,182 @@
+{% load mathfilters %} <div class="row">
+    <div class="col-md-12">
+        <div class="card p-2">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Checklist </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Responsible KRA </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Person Responsible </th>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 30%;"> Relative Gaps Found </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Compliance </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);"> 
+                        {% for discount in all_discount_cases %} 
+                        <tr>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{discount.checklist}}
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    {{discount.responsible_kra}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="">
+                                    <select class="form-control" name="" id="person_responsible_discount_{{forloop.counter}}">
+                                        <option value="">Select</option> 
+                                        {% for emp in all_employee %} 
+                                        <option {% if discount.person_responsible == emp %} selected {% endif %} value="{{emp.id}}">
+                                            {{emp.zenoti_data.employee_name}}
+                                        </option> 
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </td>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted">
+                                    <input type="text" class="form-control" value="{{blockout.relative_gap_found|default_if_none:''}}" id="gap_found_blockout_{{forloop.counter}}">
+                                </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="text" readonly value="{{discount.compliance|default_if_none:''}}" id="compliance_discount_{{forloop.counter}}">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{discount.id}}" id="discount_id_{{forloop.counter}}">
+                            </td>
+                        </tr> 
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+            <br><br>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-white" style="background-color: rgb(151 112 112);">
+                        <tr>
+                            <!-- <th scope="col" class="border-0 text-bold" style="width: 20%;"> Checklist </th> -->
+                            <!-- <th scope="col" class="border-0 text-uppercase font-medium"> Responsible KRA </th> -->
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Total Discount cases as per Zenoti </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Total approvals verified </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 20%;"> Difference </th>
+                            <th scope="col" class="border-0 text-bold" style="width: 40%;"> Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: rgb(218, 230, 244);">
+                        <tr>
+                            <!-- <td style="white-space: normal;">
+                                <span class="text-muted"> Blockouts </span>
+                            </td> -->
+                            <td>
+                                <span class="">
+                                    <input class="form-control" type="number" value="{{revenue_audit.total_discount_cases_as_per_zenoti}}" id="dc_as_zenoti_1" onchange="get_discount_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="number" class="form-control" value="{{revenue_audit.total_approvals_verified}}" id="dc_verified_1" onchange="get_discount_difference()">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span class="">
+                                    <input type="text" readonly class="form-control" id="dc_difference_1" 
+                                    value="{{revenue_audit.total_discount_cases_as_per_zenoti|sub:revenue_audit.total_approvals_verified}}">
+                                </span>
+                            </td>
+                            <td style="white-space: normal;">
+                                <span>
+                                    <input class="form-control" type="text" value="{{revenue_audit.dicount_cases_remark|default_if_none:''}}" id="dc_remark_1">
+                                </span>
+                            </td>
+                            <td style="display: none;">
+                                <input type="text" value="{{revenue_audit.id}}" id="dc_revenue_audit_id">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row justify-content-center p-2">
+            <button class="btn btn-success" onclick="edit_all_discount_data()">Update</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function get_discount_difference() {
+        // ****if Both field is 0, it is Followed, else Not Followed
+        var dc_as_zenoti = document.getElementById('dc_as_zenoti_1').value;
+        var dc_verified = document.getElementById('dc_verified_1').value;
+        var dc_difference = document.getElementById('dc_difference_1').value = dc_as_zenoti - dc_verified;
+        if (dc_as_zenoti && dc_verified) {
+            if (dc_difference == 0) {
+                document.getElementById('compliance_discount_1').value = 'Followed';
+            } else {
+                document.getElementById('compliance_discount_1').value = 'Not Followed';
+            }
+        } else {
+            document.getElementById('compliance_discount_1').value = 'Not Followed';
+        }
+    }
+
+    function edit_all_discount_data() {
+        $('#cover-spin').show(0);
+        var discountchecklist_check_list = [];
+        var discountchecklist_unique_question = [];
+        for (var i = 0; i < 1; i++) {
+            var field_id = i + 1
+            var data_obj = {}
+            data_obj['person_responsible'] = document.getElementById('person_responsible_discount_' + field_id).value;
+            // data_obj['relative_gap'] = document.getElementById('gap_found_blockout_' + field_id).value;
+            data_obj['compliance'] = document.getElementById('compliance_discount_' + field_id).value;
+            data_obj['id'] = document.getElementById('discount_id_' + field_id).value;
+            discountchecklist_check_list.push(data_obj);
+        }
+        // console.log(hygiene_check_list)
+        discountchecklist_unique_question_obj = {}
+        discountchecklist_unique_question_obj['as_zenoti'] = document.getElementById('dc_as_zenoti_1').value;
+        discountchecklist_unique_question_obj['verified'] = document.getElementById('dc_verified_1').value;
+        discountchecklist_unique_question_obj['remark'] = document.getElementById('dc_remark_1').value;
+        discountchecklist_unique_question_obj['id'] = document.getElementById('dc_revenue_audit_id').value;
+        discountchecklist_unique_question.push(discountchecklist_unique_question_obj)
+
+        fetch("/edit_audit_discount_cases/", {
+            method: "POST",
+            body: JSON.stringify({
+                'discountchecklist_check_list': discountchecklist_check_list,
+                'discountchecklist_unique_question': discountchecklist_unique_question,
+            }),
+            // Adding headers to the request
+            headers: {
+                "Content-type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        })
+            .then((response) => {
+                // console.log(response);
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // console.log("Success: ", data);
+                if (data.msg == 'success') {
+                    // $('#cover-spin').hide(0);
+                    location.reload();
+                }
+                else {
+                    alert('Something went wrong, Please try again after refreshing the page')
+                    $('#cover-spin').hide(0);
+                }
+            });
+    }
+</script>
